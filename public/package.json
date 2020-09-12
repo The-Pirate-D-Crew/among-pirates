@@ -36,6 +36,7 @@
     "axios": "^0.20.0",
     "lodash": "^4.17.20",
     "phaser": "^3.20.1",
+    "phaser3-rex-plugins": "^1.1.27",
     "socket.io-client": "^2.3.0"
   }
 }

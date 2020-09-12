@@ -1,27 +1,37 @@
 import Phaser from "phaser";
-import MenuScene from './scenes/MenuScene';
-import LobbyScene from "./scenes/LobbyScene"
+import InputTextPlugin from 'phaser3-rex-plugins/plugins/inputtext-plugin.js';
+import MenuScene from "./scenes/MenuScene";
+import LobbyScene from "./scenes/LobbyScene";
 
 const config = {
-  type: Phaser.WEBGL,
+  type: Phaser.AUTO,
   pixelArt: true,
   roundPixels: true,
-  parent: 'content',
+  parent: "content",
   width: 800,
   height: 600,
-  physics: {
-      default: 'arcade',
-      arcade: {
-          gravity: {
-              y: 800
-          },
-          debug: false
-      }
+  dom: {
+    createContainer: true,
   },
-  scene: [
-    MenuScene,
-    LobbyScene
-  ]
+  physics: {
+    default: "arcade",
+    arcade: {
+      gravity: {
+        y: 800,
+      },
+      debug: false,
+    },
+  },
+  plugins: {
+    global: [
+      {
+        key: "rexInputTextPlugin",
+        plugin: InputTextPlugin,
+        start: true,
+      },
+    ],
+  },
+  scene: [MenuScene, LobbyScene],
 };
 
-new Phaser.Game(config);
+const game = new Phaser.Game(config); // eslint-disable-line no-unused-vars
