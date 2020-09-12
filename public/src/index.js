@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import InputTextPlugin from 'phaser3-rex-plugins/plugins/inputtext-plugin.js';
+import BootScene from './scenes/BootScene';
 import MenuScene from "./scenes/MenuScene";
 import LobbyScene from "./scenes/LobbyScene";
 
@@ -31,7 +32,7 @@ const config = {
       },
     ],
   },
-  scene: [MenuScene, LobbyScene],
+  scene: [BootScene, MenuScene, LobbyScene],
 };
 
 const game = new Phaser.Game(config); // eslint-disable-line no-unused-vars

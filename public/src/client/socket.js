@@ -12,4 +12,8 @@ export default class Socket {
     onPlayerStates() {
         return this.socket.on("playerStates")
     }
+
+    disconnect() {
+        this.socket.disconnect();
+    }
 }

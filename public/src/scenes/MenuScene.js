@@ -3,7 +3,7 @@ import HttpRequest from "../client/http";
 import Socket from "../client/socket";
 import _ from "lodash"
 export default class MenuScene extends Phaser.Scene {
-  constructor(game) {
+  constructor(test) {
     super({
       key: "MenuScene",
     });
@@ -22,10 +22,6 @@ export default class MenuScene extends Phaser.Scene {
 
   preload() {
     console.log("preload menu");
-
-    this.load.image("background", "assets/menu-background.png");
-    this.load.image("create-match-button", "assets/create-match-button.png");
-    this.load.image("join-match-button", "assets/join-match-button.png");
   }
 
   create() {
@@ -83,9 +79,10 @@ export default class MenuScene extends Phaser.Scene {
   }
 
   _startJoinMatch() {
-    if(_.isUndefined(this.matchId)) {
-        alert("You must enter a game code.")
-    }
+    this.scene.start('LobbyScene');
+    // if(_.isUndefined(this.matchId)) {
+    //     alert("You must enter a game code.")
+    // }
   }
 
   _matchJoined() {
