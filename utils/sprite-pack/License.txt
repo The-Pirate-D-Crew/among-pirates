@@ -1,6 +1,6 @@
 	
 
-	RTS Pack: Medieval
+	Topdown (Shooter) Pack
 
 	by  Kenney Vleugels (Kenney.nl)
 
@@ -18,4 +18,4 @@
 	Request:  http://request.kenney.nl
 
 	Follow on Twitter for updates:
-	@KenneyNL
+	@KenneyWings
