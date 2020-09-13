@@ -25,7 +25,7 @@ export default class LobbyScene extends Phaser.Scene {
 
     // CREATE MAP!
     this.map = this.add.tilemap("lobby-map");
-    this.terrain = this.map.addTilesetImage("lobby-map", "tilesheet-complete");
+    this.terrain = this.map.addTilesetImage("lobby-map", "tilesheet-complete", 32, 32, 0, 0);
 
     this.map.createStaticLayer("bot-lvl3", [this.terrain], 0, 0).setDepth(-1);
     this.map.createStaticLayer("bot-lvl2", [this.terrain], 0, 0).setDepth(-2);
@@ -45,25 +45,39 @@ export default class LobbyScene extends Phaser.Scene {
     this.player = new Player({
       scene: this,
       key: "player",
-      name: this.add.text(10, 10, "Player Name", {
-        fontSize: "12px",
-        fill: "#ffffff",
-      }),
-      x: 30,
-      y: 30,
+      name: "Thunderkey95",
+      x: 700,
+      y: 550,
     });
 
     this.player.setCollideWorldBounds(true);
     this.physics.add.collider(this.player, this.topLayer);
 
     this.cameras.main.startFollow(this.player);
-    
+
     this.physics.world.setBounds(
       0,
       0,
       this.map.widthInPixels,
       this.map.heightInPixels
     );
+
+    this.exitButton = this.add.sprite(760, 560, "exit-icon");
+    this.exitButton.setScrollFactor(0,0);
+
+    this.exitButton.inputEnabled = true;
+    this.exitButton.setInteractive({ useHandCursor: true });
+
+    this.exitButton.on("pointerover", () => {
+      this.exitButton.alpha = 0.8;
+    });
+
+    this.exitButton.on("pointerout", () => {
+      this.exitButton.alpha = 1;
+    });
+
+    this.exitButton.on("pointerdown", () => this.scene.start('MenuScene'));
+    
   }
 
   update(time, delta) {
