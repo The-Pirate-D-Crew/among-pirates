@@ -72,6 +72,8 @@ export default class MenuScene extends Phaser.Scene {
     this.matchIdInput.on('textchange', (inputText) => {
         this.matchId = inputText.text;
     })
+
+  
   }
 
   update() {

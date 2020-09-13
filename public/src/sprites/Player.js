@@ -1,10 +1,11 @@
 export default class Player extends Phaser.Physics.Arcade.Sprite {
   constructor(config) {
-    super(config.scene, config.x, config.y, config.key);
+    super(config.scene, config.x, config.y, config.key, config.name);
     config.scene.sys.updateList.add(this);
     config.scene.sys.displayList.add(this);
     config.scene.add.existing(this);
     config.scene.physics.world.enableBody(this);
+    this.name = config.name
     this.speed = 180;
     this.setImmovable(true);
   }
@@ -17,6 +18,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       up: keys.up.isDown,
     };
 
+    this.name.x = this.body.position.x - 20; 
+    this.name.y =  this.body.position.y - 20; 
     if (this.active === true) {
       if (input.up) {
         this.setVelocityY(-this.speed);
