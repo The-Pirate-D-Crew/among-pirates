@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  api:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: api
+    ports:
+      - "80:3000"
+    networks:
+      - network1
+  matchstore:
+    image: redis:6.0.8
+    ports:
+      - "6379:6379"
+    networks:
+      - network1
+networks:
+  network1:

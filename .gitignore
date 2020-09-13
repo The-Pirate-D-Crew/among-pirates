@@ -1,4 +1,5 @@
 node_modules/
+server/dist
 
 # Build
 /npm-debug.log
