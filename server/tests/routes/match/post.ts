@@ -19,7 +19,9 @@ describe("POST /match", function(){
 	});
 
 	after(async function(){
-		await services.shutdown();
+		if(!process.env.DEVTEST){
+			await services.shutdown();
+		}
 	});
 
 

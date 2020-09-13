@@ -18,10 +18,12 @@ async function setup()
 	}
 	alreadySetup = true;
 
-	// Setup MatchStore
-	const matchStoreUrl = "redis://127.0.0.1:6379";
+	// Prepare env vars
+	process.env.MATCH_STORE_REDIS_URL = "redis://127.0.0.1:6379";
+
+	// Setup MatchStore client
 	matchStoreClient = redis.createClient({
-		url: matchStoreUrl
+		url: process.env.MATCH_STORE_REDIS_URL
 	});
 
 	// Setup API

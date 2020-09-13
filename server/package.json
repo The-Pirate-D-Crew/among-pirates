@@ -6,8 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "TS_NODE_FILES=true mocha --recursive --trace-warnings -r ts-node/register tests/routes/**/*.ts tests/wsEvents/**/*.ts",
-    "dev": "TS_NODE_FILES=true mocha --trace-warnings --bail -w --watch-files src/**/*.ts --watch-files tests/**/*.ts -r ts-node/register tests/routes/**/*.ts tests/wsEvents/**/*.ts || exit 0"
+    "test": "TS_NODE_FILES=true mocha --recursive -r ts-node/register tests/routes/**/*.ts tests/wsEvents/**/*.ts",
+    "dev": "DEVTEST=true TS_NODE_FILES=true mocha --bail -w --watch-files src/**/*.ts --watch-files tests/**/*.ts -r ts-node/register tests/routes/**/*.ts tests/wsEvents/**/*.ts || exit 0"
   },
   "author": "",
   "license": "ISC",
