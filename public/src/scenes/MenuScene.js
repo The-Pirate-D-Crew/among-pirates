@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 import HttpRequest from "../client/http";
-import Socket from "../client/socket";
 import Button from "../sprites/Button";
 import _ from "lodash";
 export default class MenuScene extends Phaser.Scene {
@@ -11,18 +10,11 @@ export default class MenuScene extends Phaser.Scene {
 
     // Scene main attributes
     this.socket;
-    this.matchId;
+    this.matchCode;
 
     // Buttons
     this.createMatchButton;
     this.joinMatchButton;
-
-    // Inputs
-    this.matchIdInput;
-  }
-
-  preload() {
-    console.log("preload menu");
   }
 
   create() {
@@ -44,13 +36,13 @@ export default class MenuScene extends Phaser.Scene {
       scene: this,
       key: "join-match-button",
       x: 400,
-      y: 400
-    })
+      y: 400,
+    });
 
     this.joinMatchButton.on("pointerdown", () => this._startJoinMatch());
 
     // Match id input
-    this.matchIdInput = this.add.rexInputText(400, 340, 160, 32, {
+    this.matchCodeInput = this.add.rexInputText(400, 340, 160, 32, {
       type: "text",
       placeholder: "Enter game code",
       fontSize: "15px",
@@ -60,8 +52,8 @@ export default class MenuScene extends Phaser.Scene {
       borderRadius: "12px",
     });
 
-    this.matchIdInput.on("textchange", (inputText) => {
-      this.matchId = inputText.text;
+    this.matchCodeInput.on("textchange", (inputText) => {
+      this.matchCode = inputText.text;
     });
   }
 
@@ -70,16 +62,17 @@ export default class MenuScene extends Phaser.Scene {
   }
 
   _startJoinMatch() {
-    this.scene.start("LobbyScene");
-    // if(_.isUndefined(this.matchId)) {
-    //     alert("You must enter a game code.")
-    // }
+    if (_.isUndefined(this.matchCode)) {
+      alert("You must enter a game code.");
+      return;
+    }
+    this._joinMatch(this.matchCode);
   }
 
-  _matchJoined() {
-    this.socket = new Socket(this.matchId);
-    this.socket.onPlayerStates((data) => {
-      console.log("player states", data);
+  _matchJoined(matchId) {
+    this.scene.start("LobbyScene", {
+      matchCode: this.matchCode,
+      matchId: matchId,
     });
   }
 
@@ -87,7 +80,8 @@ export default class MenuScene extends Phaser.Scene {
     HttpRequest.createMatch()
       .then((response) => {
         console.log("create match response!", response);
-        this._joinMatch(response.id);
+        this.matchCode = response.data.code;
+        this._joinMatch(response.data.code);
       })
       .catch((e) => {
         console.error(e);
@@ -95,11 +89,11 @@ export default class MenuScene extends Phaser.Scene {
       });
   }
 
-  _joinMatch(matchId) {
-    HttpRequest.joinMatch(matchId)
+  _joinMatch(matchCode) {
+    HttpRequest.joinMatch(matchCode)
       .then((response) => {
         console.log("join match response!", response);
-        if (response.status === 200) this._matchJoined();
+        if (response.status === 200) this._matchJoined(response.data.id);
       })
       .catch((e) => {
         console.error(e);

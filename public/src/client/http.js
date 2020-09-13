@@ -1,5 +1,5 @@
 import axios from 'axios'
-const baseUrl = "https://ivankoop.dev"
+const baseUrl = "http://localhost:3000"
 
 export default class HttpRequest {
 

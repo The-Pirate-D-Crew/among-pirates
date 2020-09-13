@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import Player from "../sprites/Player";
 import Button from "../sprites/Button";
+import Socket from "../client/socket";
 
 export default class LobbyScene extends Phaser.Scene {
   constructor(test) {
@@ -10,8 +11,17 @@ export default class LobbyScene extends Phaser.Scene {
     });
   }
 
-  create() {
+  init(data) {
+    console.log("init", data);
+    this.matchCode = data.matchCode;
 
+    this.socket = new Socket(data.matchId);
+    this.socket.onPlayerStates((data) => {
+      console.log("player states", data);
+    });
+  }
+
+  create() {
     // Keys
     this.keys = {
       left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
@@ -82,6 +92,15 @@ export default class LobbyScene extends Phaser.Scene {
       y: 560,
       cameraSticky: true,
     }).on("pointerdown", () => this._startMatch());
+
+    // Match Code
+    this.matchCodeText = this.add
+      .text(350, 10, this.matchCode, {
+        fontSize: "20px",
+        fill: "#ffffff",
+      })
+      .setDepth(1);
+    this.matchCodeText.setScrollFactor(0, 0);
   }
 
   // Starts the Match

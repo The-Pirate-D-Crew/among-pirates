@@ -6,7 +6,8 @@ export async function setup()
 {
 	io = SocketIoServer({
 		path: "/match",
-		serveClient: false
+		serveClient: false,
+		origins: '*:*'
 	});
 
 	// Setup middleware
