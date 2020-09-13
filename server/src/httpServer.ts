@@ -10,6 +10,8 @@ export async function setup()
 {
 	app.use(bodyParser.json());
 	app.use("/match", matchRouter);
+	app.use("/assets", express.static("../public/assets"))
+	app.use(express.static("../public/dist"))
 	app.use(async(error:Error, req:express.Request, res:express.Response, next:express.NextFunction) => {
 		// Dont log client syntax errors
 		if(error instanceof SyntaxError){ res.sendStatus(400); return; }
