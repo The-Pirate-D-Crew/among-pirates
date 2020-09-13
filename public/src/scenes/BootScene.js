@@ -35,6 +35,7 @@ class BootScene extends Phaser.Scene {
     this.load.image("player", "assets/soldier1_stand.png")
     this.load.image("tilesheet-complete", "assets/tilesheet_complete.png")
     this.load.image("exit-icon", "assets/exit-icon.png")
+    this.load.image("start-match-button", "assets/start-match-button.png")
     this.load.tilemapTiledJSON("lobby-map", "assets/maps/lobby-map.json");
   }
 }

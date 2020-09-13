@@ -13,8 +13,6 @@ export default class LobbyScene extends Phaser.Scene {
   }
 
   create() {
-    // Background
-
     // KEYS
     this.keys = {
       left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
@@ -25,11 +23,26 @@ export default class LobbyScene extends Phaser.Scene {
 
     // CREATE MAP!
     this.map = this.add.tilemap("lobby-map");
-    this.terrain = this.map.addTilesetImage("lobby-map", "tilesheet-complete", 32, 32, 0, 0);
+    this.terrain = this.map.addTilesetImage(
+      "lobby-map",
+      "tilesheet-complete",
+      32,
+      32,
+      0,
+      0
+    );
 
     this.map.createStaticLayer("bot-lvl3", [this.terrain], 0, 0).setDepth(-1);
     this.map.createStaticLayer("bot-lvl2", [this.terrain], 0, 0).setDepth(-2);
     this.map.createStaticLayer("bot", [this.terrain], 0, 0).setDepth(-3);
+
+    // WORLD PHYSICS
+    this.physics.world.setBounds(
+      0,
+      0,
+      this.map.widthInPixels,
+      this.map.heightInPixels
+    );
     this.topLayer = this.map.createStaticLayer("top", [this.terrain], 0, 0);
 
     this.topLayer.setCollisionByProperty({ collide: true });
@@ -55,15 +68,9 @@ export default class LobbyScene extends Phaser.Scene {
 
     this.cameras.main.startFollow(this.player);
 
-    this.physics.world.setBounds(
-      0,
-      0,
-      this.map.widthInPixels,
-      this.map.heightInPixels
-    );
-
+    // EXIT BUTTON
     this.exitButton = this.add.sprite(760, 560, "exit-icon");
-    this.exitButton.setScrollFactor(0,0);
+    this.exitButton.setScrollFactor(0, 0);
 
     this.exitButton.inputEnabled = true;
     this.exitButton.setInteractive({ useHandCursor: true });
@@ -76,8 +83,28 @@ export default class LobbyScene extends Phaser.Scene {
       this.exitButton.alpha = 1;
     });
 
-    this.exitButton.on("pointerdown", () => this.scene.start('MenuScene'));
-    
+    this.exitButton.on("pointerdown", () => this.scene.start("MenuScene"));
+
+    // START MATCH BUTTON
+    this.startMatchButton = this.add.sprite(400, 560, "start-match-button");
+    this.startMatchButton.setScrollFactor(0, 0);
+
+    this.startMatchButton.inputEnabled = true;
+    this.startMatchButton.setInteractive({ useHandCursor: true });
+
+    this.startMatchButton.on("pointerover", () => {
+      this.startMatchButton.alpha = 0.8;
+    });
+
+    this.startMatchButton.on("pointerout", () => {
+      this.startMatchButton.alpha = 1;
+    });
+
+    this.startMatchButton.on("pointerdown", () => this._startMatch());
+  }
+
+  _startMatch() {
+    console.log("start match!");
   }
 
   update(time, delta) {
