@@ -1,0 +1,30 @@
+import * as http from "http";
+import express from "express";
+import * as bodyParser from "body-parser";
+import {router as matchRouter} from "./components/match/router";
+
+const app = express();
+var server:http.Server;
+
+export async function setup()
+{
+	app.use(bodyParser.json());
+	app.use("/match", matchRouter);
+	app.use(async(error:Error, req:express.Request, res:express.Response, next:express.NextFunction) => {
+		// Dont log client syntax errors
+		if(error instanceof SyntaxError){ res.sendStatus(400); return; }
+
+		// Send response
+		res.sendStatus(500);
+
+		// Log error
+		console.error(error);
+	});
+	server = http.createServer(app);
+	await new Promise(r => server.listen(3000, r));
+}
+
+export async function shutdown()
+{
+	if(server){ await new Promise(r => server.close(r)); }
+}
