@@ -10,9 +10,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       fill: "#ffffff",
     }),
     this.speed = 180;
+    this.setCollideWorldBounds(true);
   }
 
-  update(keys, time, delta) {
+  update(keys, _time, _delta) {
     let input = {
       left: keys.left.isDown,
       right: keys.right.isDown,
@@ -22,7 +23,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.playerName.x = this.body.position.x - 20; 
     this.playerName.y =  this.body.position.y - 20; 
-    
+
     if (this.active === true) {
       if (input.up) {
         this.setVelocityY(-this.speed);
