@@ -7,7 +7,7 @@ export async function start()
 {
 	// Set everything up
 	await matchController.setup({
-		redisUrl: "redis://127.0.0.1:6379",
+		redisUrl: process.env.MATCH_STORE_REDIS_URL,
 		redisNamespace: "match"
 	});
 	await httpServer.setup();
