@@ -36,9 +36,7 @@ jobs:
 
       - name: Install
         run: | 
-          npm install --prefix server
-          npm link webpack
-          npm link webpack-merge
+          npm install --prefix public
       
           
       - name: Build
