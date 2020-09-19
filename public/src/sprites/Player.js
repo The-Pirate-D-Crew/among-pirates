@@ -41,6 +41,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.angle = 360;
       }
       
+      
       if (input.up && input.right) {
         this.angle = -40;
       }
