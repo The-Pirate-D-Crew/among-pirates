@@ -4,12 +4,11 @@
 - docker-compose
 
 ### Install
-1. `npm install --prefix server && npm install --prefix public`
+1. `make install`
 
 ### Server Flow
-1. `docker-compose up -d matchstore`
-2. `npm run dev --prefix server`
-3. `docker-compose down`
+1. `make server-dev`
+2. `docker-compose down`
 
 ### Client Flow
-1. `npm start --prefix public`
+1. `make client-dev`
