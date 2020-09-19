@@ -5,7 +5,6 @@ import Socket from "../client/socket";
 
 export default class LobbyScene extends Phaser.Scene {
   constructor(test) {
-    console.log("LobbyScene instance!");
     super({
       key: "LobbyScene",
     });
@@ -82,7 +81,10 @@ export default class LobbyScene extends Phaser.Scene {
       x: 760,
       y: 560,
       cameraSticky: true,
-    }).on("pointerdown", () => this.scene.start("MenuScene"));
+    }).on("pointerdown", () => {
+      this.socket.disconnect();
+      this.scene.start("MenuScene")
+    });
 
     // Start Match Button
     this.startMatchButton = new Button({

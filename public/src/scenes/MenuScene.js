@@ -74,6 +74,7 @@ export default class MenuScene extends Phaser.Scene {
       matchCode: this.matchCode,
       matchId: matchId,
     });
+    this.matchCode = null;
   }
 
   _createMatch() {
