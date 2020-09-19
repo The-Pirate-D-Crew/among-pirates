@@ -1,17 +1,16 @@
 import io from "socket.io-client";
-const baseUrl = "http://localhost:4000";
+import settings from "../../config/settings";
+
+const { baseWSocketUrl } = settings;
 
 export default class Socket {
   constructor(matchId) {
     this.matchId = matchId;
-    this.socket = io("http://localhost:4000", {
+    this.socket = io(baseWSocketUrl, {
       path: `/match/${matchId}`,
-      autoConnect: false,
+      autoConnect: true,
       transports: ["websocket"],
     });
-
-    this.socket.connect()
-    
   }
 
   onPlayerStates() {
