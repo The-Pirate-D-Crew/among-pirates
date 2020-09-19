@@ -28,22 +28,20 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       if (input.up) {
         this.setVelocityY(-this.speed);
         this.angle = -90;
-      }
-
-      if (input.down) {
+      } else if (input.down) {
         this.setVelocityY(this.speed);
         this.angle = 90;
-      }
+      } 
+
 
       if (input.left) {
         this.setVelocityX(-this.speed);
         this.angle = 180;
-      }
-
-      if (input.right) {
+      } else if (input.right) {
         this.setVelocityX(this.speed);
         this.angle = 360;
       }
+      
 
       if (input.up && input.right) {
         this.angle = -40;
