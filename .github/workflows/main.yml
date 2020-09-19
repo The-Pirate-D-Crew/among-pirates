@@ -36,6 +36,7 @@ jobs:
 
       - name: Install
         run: | 
+          cp public/config/settings.example.json public/config/settings.json
           npm install --prefix public
           npm link webpack
           npm link webpack-merge
