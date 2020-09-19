@@ -1,3 +1,5 @@
+[![Actions Status](https://github.com/The-Pirate-D-Crew/among-pirates/workflows/CI/badge.svg)](https://github.com/The-Pirate-D-Crew/among-pirates/actions)
+
 ## Developing
 ### Requirements
 - docker
