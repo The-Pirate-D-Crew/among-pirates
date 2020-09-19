@@ -30,4 +30,7 @@ jobs:
 
       - name: Install
         run: npm install --prefix server
+        
+      - name: Test
+        run: npm run test --prefix server
 
