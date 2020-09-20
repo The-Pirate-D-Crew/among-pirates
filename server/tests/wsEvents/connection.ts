@@ -34,18 +34,19 @@ describe("WS /match/:id", function(){
 
 	it("should allow connection with socket.io over websockets", async function(){
 		// Create a match
-		const matchCode = await agent
+		const matchId = await agent
 			.post("/match")
 			.expect(200)
-			.then(response => response.body.code);
+			.then(response => response.body.id);
 
 		// Connect through socket as a driver
 		const socket = io("http://localhost:4000", {
-			path: `/match/${matchCode}`,
+			path: `/match/${matchId}`,
 			autoConnect: false,
 			transports: ["websocket"]
 		});
-		sockets.push(socket);	
+		sockets.push(socket);
+
 		const socketConnection = new Promise(r => { socket.once("connect", r); });
 		socket.open();
 		await socketConnection;

@@ -15,5 +15,10 @@ type PlayerAction = {
 	right: boolean
 }
 
+type PlayerState = {
+	x: number,
+	y: number
+}
+
 type MatchId = string;
 type PlayerId = string;

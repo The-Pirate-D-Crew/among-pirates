@@ -2,6 +2,7 @@ import SocketIoServer, * as SocketIo from "socket.io"
 import * as matchController from "./components/match/controller"
 
 var io:SocketIo.Server;
+var playerStateEmitLoop:NodeJS.Timeout;
 
 export async function setup()
 {
@@ -20,13 +21,16 @@ export async function setup()
 
 	// Start listenint for connections
 	io.listen(4000);
+
+	// Setup PlayerState emit loop
+	playerStateEmitLoop = setInterval(emitPlayerStatesToClients, (1000/30));
 }
 
 async function onSocketConnection(socket:SocketIo.Socket)
 {
 	// Retrieve match
 	const matchId = socket.handshake.url.split("/")[2];
-	const match = await matchController.getByCode(matchId);
+	const match = await matchController.getById(matchId);
 
 	// Disconnect socket if match doesnt exist
 	if(!match){
@@ -46,6 +50,12 @@ async function onSocketConnection(socket:SocketIo.Socket)
 		});
 	});
 
+	// Set player initial state
+	matchController.setPlayerState(playerId, {
+		x: 0,
+		y: 0
+	});
+
 	// Subscribe to events
 	socket.on("actionUpdate", async playerAction => {
 		await onPlayerActionUpdate(matchId, playerId, playerAction);
@@ -57,11 +67,26 @@ async function onSocketConnection(socket:SocketIo.Socket)
 
 async function onPlayerActionUpdate(matchId:MatchId, playerId:PlayerId, playerAction:PlayerAction)
 {
-	await matchController.updatePlayerAction(matchId, playerId, playerAction);
+	matchController.updatePlayerAction(matchId, playerId, playerAction);
+}
+
+function emitPlayerStatesToClients()
+{
+	const matchIds = matchController.getLocal();
+	for(let matchId of matchIds){
+		const playerIds = matchController.getPlayerIds(matchId);
+		const playerStates = new Map<PlayerId, PlayerState>();
+		for(let playerId of playerIds){
+			const playerState = matchController.getPlayerState(playerId);
+			playerStates.set(playerId, playerState);
+		}
+		io.in(matchId).emit("playerStates", Object.fromEntries(playerStates));
+	}
 }
 
 export async function shutdown()
 {
+	clearTimeout(playerStateEmitLoop);
 	await new Promise(r => io.close(r));
 	io.removeAllListeners();
 }

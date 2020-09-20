@@ -4,22 +4,27 @@ import * as redis from  "redis";
 import {promisify} from "util";
 var config:MatchControllerConfig;
 var redisGeneralClient:redis.RedisClient;
-var redisPublisher:redis.RedisClient;
 var redisSet:redis.OverloadedCommand<string, string, string>;
 var redisGet:redis.OverloadedCommand<string, string, string>;
 var redisSadd:redis.OverloadedCommand<string, string, string>;
 var redisSrem:redis.OverloadedCommand<string, string, string>;
 const localPlayerIds = new Map<MatchId, Set<PlayerId>>();
 const localPlayerActions = new Map<PlayerId,PlayerAction>();
-var playerActionEmitLoop:NodeJS.Timeout;
+const localPlayerStates = new Map<PlayerId,PlayerState>();
+var playerStateUpdateLoop:NodeJS.Timeout;
 
 export {
 	setup,
 	create,
 	addPlayer,
 	removePlayer,
+	setPlayerState,
 	updatePlayerAction,
 	getByCode,
+	getById,
+	getLocal,
+	getPlayerState,
+	getPlayerIds,
 	shutdown
 };
 
@@ -29,24 +34,20 @@ async function setup(_config:MatchControllerConfig)
 	config = _config;
 
 	// Setup redis clients
-	redisPublisher = redis.createClient({
-		url: config.redisUrl
-	});
 	redisGeneralClient = redis.createClient({
 		url: config.redisUrl
 	});
 	redisGeneralClient.on("error", error => console.error(error));
-	redisPublisher.on("error", error => console.error(error));
 	redisSet = promisify(redisGeneralClient.set).bind(redisGeneralClient);
 	redisGet = promisify(redisGeneralClient.get).bind(redisGeneralClient);
 	redisSadd = promisify(redisGeneralClient.sadd).bind(redisGeneralClient);
 	redisSrem = promisify(redisGeneralClient.srem).bind(redisGeneralClient);
 
-	// Setup PlayerActions emit playerActionEmitLoop
-	playerActionEmitLoop = setInterval(emitPlayerActions, (1000/30));
+	// Setup PlayerState update loop
+	playerStateUpdateLoop = setInterval(updatePlayerStates, (1000/30));
 }
 
-async function create()
+async function create():Promise<Match>
 {
 	// Generate an id
 	const matchId = uniqid();
@@ -77,12 +78,22 @@ async function create()
 		code: matchCode
 	}
 	await redisSet(`${config.redisNamespace}:${matchCode}`, JSON.stringify(match));
+	await redisSet(`${config.redisNamespace}:${matchId}`, JSON.stringify(match));
 	return match;
 }
 
-async function getByCode(matchCode:string)
+async function getByCode(matchCode:string):Promise<Match>
 {
 	const matchStr = await redisGet(`${config.redisNamespace}:${matchCode}`);
+	if(!matchStr){
+		return null;
+	}
+	return JSON.parse(matchStr);
+}
+
+async function getById(matchId:MatchId):Promise<Match>
+{
+	const matchStr = await redisGet(`${config.redisNamespace}:${matchId}`);
 	if(!matchStr){
 		return null;
 	}
@@ -102,10 +113,15 @@ async function addPlayer(matchId:string, playerId:string)
 	localPlayerIds.set(matchId, playerIds);
 }
 
-async function updatePlayerAction(matchId:MatchId, playerId:PlayerId, newPlayerAction:PlayerAction)
+function updatePlayerAction(matchId:MatchId, playerId:PlayerId, newPlayerAction:PlayerAction)
 {
 	// Update action
 	localPlayerActions.set(playerId, newPlayerAction);
+}
+
+function setPlayerState(playerId:PlayerId, playerState:PlayerState)
+{
+	localPlayerStates.set(playerId, playerState);
 }
 
 async function removePlayer(matchId:string, playerId:string)
@@ -119,29 +135,61 @@ async function removePlayer(matchId:string, playerId:string)
 		playerIds.delete(playerId);
 	}
 
-	// Remove player from actions map
+	// Remove player from local actions map
 	localPlayerActions.delete(playerId);
 }
 
-async function emitPlayerActions()
+function getLocal():MatchId[]
 {
-	for(let [matchId, playerIds] of localPlayerIds){
-		const playerActions = new Map<PlayerId, PlayerAction>();
-		for(let playerId of playerIds){
-			const playerAction = localPlayerActions.get(playerId);
-			playerActions.set(playerId, playerAction);
+	return Array.from(localPlayerIds.keys());
+}
+
+function getPlayerState(playerId:PlayerId):PlayerState
+{
+	return localPlayerStates.get(playerId);
+}
+
+function getPlayerIds(matchId:MatchId):PlayerId[]
+{
+	return Array.from(localPlayerIds.get(matchId));
+}
+
+function onPlayerActionUpdate(playerId:PlayerId, playerAction:PlayerAction)
+{
+	localPlayerActions.set(playerId, playerAction);
+}
+
+function updatePlayerStates()
+{
+	const movementSpeed:number = 1;
+	for(let playerId of localPlayerActions.keys()){
+
+		// Get current state and action
+		const playerState = localPlayerStates.get(playerId);
+		const playerAction = localPlayerActions.get(playerId);
+
+		// Update position
+		if(playerAction.up){
+			playerState.y -=  movementSpeed;
 		}
-		redisPublisher.publish(matchId, JSON.stringify({
-			playerActions: Object.fromEntries(playerActions)
-		}));
+		if(playerAction.down){
+			playerState.y +=  movementSpeed;
+		}
+		if(playerAction.left){
+			playerState.x -=  movementSpeed;
+		}
+		if(playerAction.right){
+			playerState.x +=  movementSpeed;
+		}
+
+		// Save state
+		localPlayerStates.set(playerId, playerState);
 	}
 }
 
 async function shutdown()
 {
-	clearInterval(playerActionEmitLoop);
+	clearInterval(playerStateUpdateLoop);
 	await new Promise(r => redisGeneralClient.quit(r));
-	await new Promise(r => redisPublisher.quit(r));
 	redisGeneralClient.removeAllListeners();
-	redisPublisher.removeAllListeners();
 }
