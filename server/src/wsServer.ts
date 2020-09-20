@@ -55,9 +55,9 @@ async function onSocketConnection(socket:SocketIo.Socket)
 	});
 }
 
-async function onPlayerActionUpdate(matchId:MatchId, playerId:PlayerId, actionUpdate:PlayerAction)
+async function onPlayerActionUpdate(matchId:MatchId, playerId:PlayerId, playerAction:PlayerAction)
 {
-	await matchController.updatePlayerAction(matchId, playerId, actionUpdate);
+	await matchController.updatePlayerAction(matchId, playerId, playerAction);
 }
 
 export async function shutdown()

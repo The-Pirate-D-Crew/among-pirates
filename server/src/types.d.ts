@@ -9,8 +9,8 @@ type MatchControllerConfig = {
 }
 
 type PlayerAction = {
-	forward: boolean,
-	backward: boolean,
+	up: boolean,
+	down: boolean,
 	left: boolean,
 	right: boolean
 }
