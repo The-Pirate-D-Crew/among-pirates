@@ -1,9 +1,11 @@
 import SocketIoServer, * as SocketIo from "socket.io"
 import * as matchController from "./components/match/controller"
+
 var io:SocketIo.Server;
 
 export async function setup()
 {
+	// Setup server
 	io = SocketIoServer({
 		path: "/match",
 		serveClient: false,
@@ -32,6 +34,10 @@ async function onSocketConnection(socket:SocketIo.Socket)
 		return;
 	}
 
+	// Add player to match
+	const playerId = socket.id;
+	await matchController.addPlayer(matchId, playerId);
+
 	// Associate socket to match
 	await new Promise((resolve, reject) => {
 		socket.join(matchId, error => {
@@ -39,6 +45,19 @@ async function onSocketConnection(socket:SocketIo.Socket)
 			resolve();
 		});
 	});
+
+	// Subscribe to events
+	socket.on("actionUpdate", async playerAction => {
+		await onPlayerActionUpdate(matchId, playerId, playerAction);
+	});
+	socket.on("disconnect", async() => {
+		await matchController.removePlayer(matchId, playerId);
+	});
+}
+
+async function onPlayerActionUpdate(matchId:MatchId, playerId:PlayerId, actionUpdate:PlayerAction)
+{
+	await matchController.updatePlayerAction(matchId, playerId, actionUpdate);
 }
 
 export async function shutdown()
