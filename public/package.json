@@ -33,6 +33,8 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
+    "@sentry/browser": "^5.24.2",
+    "@sentry/tracing": "^5.24.2",
     "axios": "^0.20.0",
     "lodash": "^4.17.20",
     "phaser": "^3.20.1",
