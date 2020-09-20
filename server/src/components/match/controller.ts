@@ -131,6 +131,9 @@ async function emitPlayerActions()
 			const playerAction = localPlayerActions.get(playerId);
 			playerActions.set(playerId, playerAction);
 		}
+		redisPublisher.publish(matchId, JSON.stringify({
+			playerActions: Object.fromEntries(playerActions)
+		}));
 	}
 }
 
