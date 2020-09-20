@@ -17,6 +17,10 @@ export default class Socket {
     return this.socket.on("playerStates");
   }
 
+  emit(eventName, payload) {
+    this.socket.emit(eventName, payload)
+  }
+
   disconnect() {
     this.socket.disconnect();
   }

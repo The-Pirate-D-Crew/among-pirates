@@ -14,7 +14,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   update(keys, _time, _delta) {
-    let input = {
+    let playerAction = {
       left: keys.left.isDown,
       right: keys.right.isDown,
       down: keys.down.isDown,
@@ -22,39 +22,41 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     };
 
     this.playerName.x = this.body.position.x - 20; 
-    this.playerName.y =  this.body.position.y - 20; 
+    this.playerName.y = this.body.position.y - 20; 
+
+    // socket emit
+    this.scene.socket.emit("actionUpdate", playerAction)
 
     if (this.active === true) {
-      if (input.up) {
+      if (playerAction.up) {
         this.setVelocityY(-this.speed);
         this.angle = -90;
-      } else if (input.down) {
+      } else if (playerAction.down) {
         this.setVelocityY(this.speed);
         this.angle = 90;
       } 
 
-      if (input.left) {
+      if (playerAction.left) {
         this.setVelocityX(-this.speed);
         this.angle = 180;
-      } else if (input.right) {
+      } else if (playerAction.right) {
         this.setVelocityX(this.speed);
         this.angle = 360;
       }
       
-      
-      if (input.up && input.right) {
+      if (playerAction.up && playerAction.right) {
         this.angle = -40;
       }
 
-      if (input.up && input.left) {
+      if (playerAction.up && playerAction.left) {
         this.angle = -140;
       }
 
-      if (input.down && input.right) {
+      if (playerAction.down && playerAction.right) {
         this.angle = 40;
       }
 
-      if (input.down && input.left) {
+      if (playerAction.down && playerAction.left) {
         this.angle = 140;
       }
 

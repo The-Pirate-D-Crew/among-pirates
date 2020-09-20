@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import Player from "../sprites/Player";
-import Zombie from "../sprites/Zombie";
+// import Zombie from "../sprites/Zombie";
 import Button from "../sprites/Button";
 import Socket from "../client/socket";
 
@@ -12,7 +12,7 @@ export default class LobbyScene extends Phaser.Scene {
   }
 
   init(data) {
-    console.log("init", data);
+  
     this.matchCode = data.matchCode;
 
     this.socket = new Socket(data.matchId);
@@ -76,31 +76,31 @@ export default class LobbyScene extends Phaser.Scene {
     this.cameras.main.startFollow(this.player);
 
     // Zombies Test
-    this.enemyGroup = this.add.group();
-    this.enemyGroup.add(
-      new Zombie({ scene: this, key: "zombie", x: 100, y: 200 })
-    );
+    // this.enemyGroup = this.add.group();
+    // this.enemyGroup.add(
+    //   new Zombie({ scene: this, key: "zombie", x: 100, y: 200 })
+    // );
 
-    this.enemyGroup.add(
-      new Zombie({ scene: this, key: "zombie", x: 750, y: 550 })
-    );
+    // this.enemyGroup.add(
+    //   new Zombie({ scene: this, key: "zombie", x: 750, y: 550 })
+    // );
 
-    this.enemyGroup.add(
-      new Zombie({ scene: this, key: "zombie", x: 300, y: 400 })
-    );
+    // this.enemyGroup.add(
+    //   new Zombie({ scene: this, key: "zombie", x: 300, y: 400 })
+    // );
 
-    this.enemyGroup.add(
-      new Zombie({ scene: this, key: "zombie", x: 130, y: 200 })
-    );
+    // this.enemyGroup.add(
+    //   new Zombie({ scene: this, key: "zombie", x: 130, y: 200 })
+    // );
 
-    this.enemyGroup.add(
-      new Zombie({ scene: this, key: "zombie", x: 800, y: 300 })
-    );
+    // this.enemyGroup.add(
+    //   new Zombie({ scene: this, key: "zombie", x: 800, y: 300 })
+    // );
 
-    this.enemyGroup.children.entries.forEach((sprite) => {
-      this.physics.add.collider(sprite, this.topLayer);
-      this.physics.add.collider(sprite, this.player);
-    });
+    // this.enemyGroup.children.entries.forEach((sprite) => {
+    //   this.physics.add.collider(sprite, this.topLayer);
+    //   this.physics.add.collider(sprite, this.player);
+    // });
 
     // Exit Button
     this.exitButton = new Button({
@@ -143,8 +143,12 @@ export default class LobbyScene extends Phaser.Scene {
     this.player.update(this.keys, time, delta);
 
     // Enemy Updates
-    this.enemyGroup.children.entries.forEach((sprite) => {
-      sprite.update(time, delta);
-    });
+    // this.enemyGroup.children.entries.forEach((sprite) => {
+    //   sprite.update(time, delta);
+    // });
   }
 }
+
+
+
+
