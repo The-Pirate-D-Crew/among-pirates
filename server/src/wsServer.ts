@@ -52,8 +52,8 @@ async function onSocketConnection(socket:SocketIo.Socket)
 
 	// Set player initial state
 	matchController.setPlayerState(playerId, {
-		x: 0,
-		y: 0
+		x: 700,
+		y: 550
 	});
 
 	// Subscribe to events
