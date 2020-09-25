@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node dist/src/index.js",
     "test": "TS_NODE_FILES=true mocha --recursive -r ts-node/register tests/routes/**/*.ts tests/wsEvents/**/*.ts",
     "dev": "DEVTEST=true TS_NODE_FILES=true mocha --bail -w --watch-files src/**/*.ts --watch-files tests/**/*.ts -r ts-node/register tests/routes/**/*.ts tests/wsEvents/**/*.ts || exit 0"
   },
