@@ -167,7 +167,7 @@ function onPlayerActionUpdate(playerId:PlayerId, playerAction:PlayerAction)
 
 function updatePlayerStates()
 {
-	const movementSpeed:number = 1;
+	const movementSpeed:number = 6;
 	for(let playerId of localPlayerActions.keys()){
 
 		// Get current state and action
