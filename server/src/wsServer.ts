@@ -23,7 +23,7 @@ export async function setup()
 	io.listen(4000);
 
 	// Setup PlayerState emit loop
-	playerStateEmitLoop = setInterval(emitPlayerStatesToClients, (1000/30));
+	playerStateEmitLoop = setInterval(emitPlayerUpdatesToClients, (1000/30));
 }
 
 async function onSocketConnection(socket:SocketIo.Socket)
@@ -70,17 +70,24 @@ async function onPlayerActionUpdate(matchId:MatchId, playerId:PlayerId, playerAc
 	matchController.updatePlayerAction(matchId, playerId, playerAction);
 }
 
-function emitPlayerStatesToClients()
+// Emit PlayerStates and PlayerActions to clients
+function emitPlayerUpdatesToClients()
 {
 	const matchIds = matchController.getLocal();
 	for(let matchId of matchIds){
 		const playerIds = matchController.getPlayerIds(matchId);
 		const playerStates = new Map<PlayerId, PlayerState>();
+		const playerActions = new Map<PlayerId, PlayerAction>();
 		for(let playerId of playerIds){
 			const playerState = matchController.getPlayerState(playerId);
+			const playerAction = matchController.getPlayerAction(playerId);
 			playerStates.set(playerId, playerState);
+			playerActions.set(playerId, playerAction);
 		}
-		io.in(matchId).emit("playerStates", Object.fromEntries(playerStates));
+		io.in(matchId).emit("playerUpdates", {
+			playerStates: Object.fromEntries(playerStates),
+			playerActions: Object.fromEntries(playerActions)
+		});
 	}
 }
 

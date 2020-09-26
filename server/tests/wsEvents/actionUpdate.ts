@@ -73,13 +73,14 @@ describe("WS /match/:id actionUpdate", function(){
 		// Subscribe player 2 to other player states and
 		// wait until we get the correct state for player 1
 		await new Promise(r => {
-			const checkFn = (playerStates:{[key:string]: PlayerState}) => {
-				if(playerStates[playerSocket1.id].y < 0){
+			const checkFn = function(payload:{playerStates:{[key:string]: PlayerState}, playerActions:{[key:string]: PlayerAction}}){
+				if(payload.playerStates[playerSocket1.id].y < 550 && payload.playerActions[playerSocket1.id].up){
 					playerSocket1.off(checkFn);
 					r();
 				}
 			}
-			playerSocket1.on("playerStates", checkFn);
+			playerSocket1.on("playerUpdates", checkFn);
 		});
 	});
 });
+

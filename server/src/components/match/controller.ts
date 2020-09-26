@@ -24,6 +24,7 @@ export {
 	getById,
 	getLocal,
 	getPlayerState,
+	getPlayerAction,
 	getPlayerIds,
 	shutdown
 };
@@ -147,6 +148,11 @@ function getLocal():MatchId[]
 function getPlayerState(playerId:PlayerId):PlayerState
 {
 	return localPlayerStates.get(playerId);
+}
+
+function getPlayerAction(playerId:PlayerId):PlayerAction
+{
+	return localPlayerActions.get(playerId);
 }
 
 function getPlayerIds(matchId:MatchId):PlayerId[]
