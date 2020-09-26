@@ -45,7 +45,7 @@ async function setup(_config:MatchControllerConfig)
 	redisSrem = promisify(redisGeneralClient.srem).bind(redisGeneralClient);
 
 	// Setup PlayerState update loop
-	playerStateUpdateLoop = setInterval(updatePlayerStates, (1000/30));
+	playerStateUpdateLoop = setInterval(updatePlayerStates, (1000/60));
 }
 
 async function create():Promise<Match>
