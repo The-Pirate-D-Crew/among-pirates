@@ -6,11 +6,15 @@ const { baseWSocketUrl } = settings;
 export default class Socket {
   constructor(matchId) {
     this.matchId = matchId;
+    this.playerId;
     this.socket = io(baseWSocketUrl, {
       path: `/match/${matchId}`,
-      autoConnect: true,
+      autoConnect: false,
       transports: ["websocket"],
     });
+
+    this.socket.connect()  
+
   }
 
   onPlayerStates() {
@@ -23,5 +27,9 @@ export default class Socket {
 
   disconnect() {
     this.socket.disconnect();
+  }
+
+  getPlayerId() {
+    return this.socket.id
   }
 }

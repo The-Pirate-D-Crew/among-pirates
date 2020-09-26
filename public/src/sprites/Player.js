@@ -1,16 +1,23 @@
 export default class Player extends Phaser.Physics.Arcade.Sprite {
   constructor(config) {
-    super(config.scene, config.x, config.y, config.key, config.name);
+    super(config.scene, config.x, config.y, config.key);
     config.scene.sys.updateList.add(this);
     config.scene.sys.displayList.add(this);
     config.scene.add.existing(this);
     config.scene.physics.world.enableBody(this);
-    this.playerName = config.scene.add.text(10, 10, config.name, {
+
+    this.playerId = config.scene.add.text(10, 10, "", {
       fontSize: "12px",
       fill: "#ffffff",
-    }),
+    });
+
     this.speed = 180;
     this.setCollideWorldBounds(true);
+
+    this.scene.socket.socket.on('connect', () => {
+      this.playerId.text = this.scene.socket.socket.id
+    });
+
   }
 
   update(keys, _time, _delta) {
@@ -21,12 +28,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       up: keys.up.isDown,
     };
 
-    this.playerName.x = this.body.position.x - 20; 
-    this.playerName.y = this.body.position.y - 20; 
+    this.playerId.x = this.body.position.x - 20; 
+    this.playerId.y = this.body.position.y - 20; 
 
     // socket emit
     this.scene.socket.emit("actionUpdate", playerAction)
-
+    
     if (this.active === true) {
       if (playerAction.up) {
         this.setVelocityY(-this.speed);
