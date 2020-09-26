@@ -61,13 +61,22 @@ async function onSocketConnection(socket:SocketIo.Socket)
 		await onPlayerActionUpdate(matchId, playerId, playerAction);
 	});
 	socket.on("disconnect", async() => {
-		await matchController.removePlayer(matchId, playerId);
-	});
+		await onPlayerDisconnect(matchId, playerId);
+	})
 }
 
 async function onPlayerActionUpdate(matchId:MatchId, playerId:PlayerId, playerAction:PlayerAction)
 {
 	matchController.updatePlayerAction(matchId, playerId, playerAction);
+}
+
+async function onPlayerDisconnect(matchId:MatchId, playerId:PlayerId)
+{
+	// Remove player from match
+	await matchController.removePlayer(matchId, playerId);
+
+	// Let other players on the same match know
+	io.in(matchId).emit("playerDisconnection", {playerId});
 }
 
 // Emit PlayerStates and PlayerActions to clients
