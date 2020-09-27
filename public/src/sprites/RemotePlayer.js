@@ -61,4 +61,9 @@ export default class RemotePlayer extends Phaser.Physics.Arcade.Sprite {
       this.setVelocityY(0);
     }
   }
+
+  kill() {
+    this.playerIdLabel.destroy();
+    this.destroy();
+  }
 }

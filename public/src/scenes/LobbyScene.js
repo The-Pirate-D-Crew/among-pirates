@@ -21,7 +21,9 @@ export default class LobbyScene extends Phaser.Scene {
       return;
     }
 
+    this.remotePlayersCollection = new Map();
     this.matchCode = data.matchCode;
+
     this.socket = io(baseWSocketUrl, {
       path: `/match/${data.matchId}`,
       autoConnect: false,
@@ -34,7 +36,12 @@ export default class LobbyScene extends Phaser.Scene {
       this.serverUpdate(playerUpdates);
     });
 
-    this.remotePlayersMap = new Map();
+    this.socket.on("playerDisconnection", (player) => {
+      console.log("player disconnected", player.playerId);
+      this.remotePlayersCollection.get(player.playerId).kill();
+    });
+
+    console.log("MATCH CODE", this.matchCode);
   }
 
   create() {
@@ -129,6 +136,9 @@ export default class LobbyScene extends Phaser.Scene {
   update(time, delta) {
     // Player updates
     this.player.update(this.keys, time, delta);
+    this.remotePlayersCollection.forEach((remotePlayerId, remotePlayer) => {
+      // console.log("remote player", remotePlayerId, remotePlayer);
+    });
   }
 
   serverUpdate(playerUpdates) {
@@ -137,25 +147,28 @@ export default class LobbyScene extends Phaser.Scene {
       playerActions
     )) {
       if (remotePlayerId !== this.player.playerIdLabel.text) {
-        if (!this.remotePlayersMap.has(remotePlayerId)) {
-          console.log("Player joined!");
-
-          const remotePlayer = new RemotePlayer({
-            scene: this,
-            key: "player",
-            id: remotePlayerId,
-            x: 700,
-            y: 550,
-          });
-
-          this.physics.add.collider(remotePlayer, this.topLayer);
-          this.remotePlayersMap.set(remotePlayerId, remotePlayer);
+        if (!this.remotePlayersCollection.has(remotePlayerId)) {
+          this._createRemotePlayer(remotePlayerId);
           return;
         }
-        this.remotePlayersMap
+        this.remotePlayersCollection
           .get(remotePlayerId)
           .update(playerStates[remotePlayerId], remotePlayerActions);
       }
     }
+  }
+
+  _createRemotePlayer(remotePlayerId) {
+    console.log("Player joined!");
+    const remotePlayer = new RemotePlayer({
+      scene: this,
+      key: "player",
+      id: remotePlayerId,
+      x: 700,
+      y: 550,
+    });
+
+    this.physics.add.collider(remotePlayer, this.topLayer);
+    this.remotePlayersCollection.set(remotePlayerId, remotePlayer);
   }
 }
