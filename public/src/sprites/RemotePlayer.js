@@ -6,7 +6,7 @@ export default class RemotePlayer extends Phaser.Physics.Arcade.Sprite {
     config.scene.add.existing(this);
     config.scene.physics.world.enableBody(this);
 
-    this.playerId = config.scene.add.text(10, 10, config.id, {
+    this.playerIdLabel = config.scene.add.text(10, 10, config.id, {
       fontSize: "12px",
       fill: "#ffffff",
     });
@@ -16,8 +16,8 @@ export default class RemotePlayer extends Phaser.Physics.Arcade.Sprite {
   }
 
   update(state, playerAction) {
-    this.playerId.x = this.body.position.x - 20;
-    this.playerId.y = this.body.position.y - 20;
+    this.playerIdLabel.x = this.body.position.x - 20;
+    this.playerIdLabel.y = this.body.position.y - 20;
 
     if (playerAction.up) {
       this.setVelocityY(-this.speed);

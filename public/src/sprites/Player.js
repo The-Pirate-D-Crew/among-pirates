@@ -6,7 +6,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     config.scene.add.existing(this);
     config.scene.physics.world.enableBody(this);
 
-    this.playerId = config.scene.add.text(10, 10, "", {
+    this.playerIdLabel = config.scene.add.text(10, 10, "", {
       fontSize: "12px",
       fill: "#ffffff",
     });
@@ -14,10 +14,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.speed = 180;
     this.setCollideWorldBounds(true);
 
-    this.scene.socket.socket.on('connect', () => {
-      this.playerId.text = this.scene.socket.socket.id
+    // setting up player id
+    this.scene.socket.on("connect", () => {
+      this.playerIdLabel.text = this.scene.socket.id;
     });
-
   }
 
   update(keys, _time, _delta) {
@@ -28,12 +28,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       up: keys.up.isDown,
     };
 
-    this.playerId.x = this.body.position.x - 20; 
-    this.playerId.y = this.body.position.y - 20; 
+    this.playerIdLabel.x = this.body.position.x - 20;
+    this.playerIdLabel.y = this.body.position.y - 20;
 
-    // socket emit
-    this.scene.socket.emit("actionUpdate", playerAction)
-    
+    // socket player actionUpdate emit
+    this.scene.socket.emit("actionUpdate", playerAction);
+
     if (this.active === true) {
       if (playerAction.up) {
         this.setVelocityY(-this.speed);
@@ -41,7 +41,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       } else if (playerAction.down) {
         this.setVelocityY(this.speed);
         this.angle = 90;
-      } 
+      }
 
       if (playerAction.left) {
         this.setVelocityX(-this.speed);
@@ -50,7 +50,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.setVelocityX(this.speed);
         this.angle = 360;
       }
-      
+
       if (playerAction.up && playerAction.right) {
         this.angle = -40;
       }

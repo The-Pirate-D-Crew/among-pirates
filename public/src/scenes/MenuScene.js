@@ -9,7 +9,6 @@ export default class MenuScene extends Phaser.Scene {
     });
 
     // Scene main attributes
-    this.socket;
     this.matchCode;
 
     // Buttons
@@ -57,9 +56,7 @@ export default class MenuScene extends Phaser.Scene {
     });
   }
 
-  update() {
-    console.log("update menu");
-  }
+  update() {}
 
   _startJoinMatch() {
     if (_.isUndefined(this.matchCode)) {

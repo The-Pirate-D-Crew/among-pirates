@@ -2,7 +2,10 @@ import Phaser from "phaser";
 import Player from "../sprites/Player";
 import RemotePlayer from "../sprites/RemotePlayer";
 import Button from "../sprites/Button";
-import Socket from "../client/socket";
+import settings from "../../config/settings";
+import io from "socket.io-client";
+
+const { baseWSocketUrl } = settings;
 
 export default class LobbyScene extends Phaser.Scene {
   constructor(test) {
@@ -12,10 +15,23 @@ export default class LobbyScene extends Phaser.Scene {
   }
 
   init(data) {
+    if (!data.matchId || !data.matchCode) {
+      console.error("LobbyScene requires {MatchId, MatchCode}");
+      this.scene.start("MenuScene");
+      return;
+    }
+
     this.matchCode = data.matchCode;
-    this.socket = new Socket(data.matchId);
-    this.socket.socket.on("playerUpdates", (playerUpdates) => {
-      this.updateRemotePlayers(playerUpdates);
+    this.socket = io(baseWSocketUrl, {
+      path: `/match/${data.matchId}`,
+      autoConnect: false,
+      transports: ["websocket"],
+    });
+
+    this.socket.connect();
+
+    this.socket.on("playerUpdates", (playerUpdates) => {
+      this.serverUpdate(playerUpdates);
     });
 
     this.remotePlayersMap = new Map();
@@ -115,11 +131,13 @@ export default class LobbyScene extends Phaser.Scene {
     this.player.update(this.keys, time, delta);
   }
 
-  updateRemotePlayers(playerUpdates) {
-    const {playerActions, playerStates} = playerUpdates
-    for (const [remotePlayerId, remotePlayerActions] of Object.entries(playerActions)) {
-      if (remotePlayerId !== this.player.playerId.text) {
-        if(!this.remotePlayersMap.has(remotePlayerId)) {
+  serverUpdate(playerUpdates) {
+    const { playerActions, playerStates } = playerUpdates;
+    for (const [remotePlayerId, remotePlayerActions] of Object.entries(
+      playerActions
+    )) {
+      if (remotePlayerId !== this.player.playerIdLabel.text) {
+        if (!this.remotePlayersMap.has(remotePlayerId)) {
           console.log("Player joined!");
 
           const remotePlayer = new RemotePlayer({
@@ -128,13 +146,10 @@ export default class LobbyScene extends Phaser.Scene {
             id: remotePlayerId,
             x: 700,
             y: 550,
-          })
+          });
 
           this.physics.add.collider(remotePlayer, this.topLayer);
-          this.remotePlayersMap.set(
-            remotePlayerId,
-            remotePlayer
-          ); 
+          this.remotePlayersMap.set(remotePlayerId, remotePlayer);
           return;
         }
         this.remotePlayersMap
