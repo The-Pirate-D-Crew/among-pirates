@@ -22,6 +22,7 @@ export default class LobbyScene extends Phaser.Scene {
     }
 
     this.remotePlayersCollection = new Map();
+    this.remotePlayersBufferCollection = new Map();
     this.matchCode = data.matchCode;
 
     this.socket = io(baseWSocketUrl, {
@@ -136,8 +137,12 @@ export default class LobbyScene extends Phaser.Scene {
   update(time, delta) {
     // Player updates
     this.player.update(this.keys, time, delta);
-    this.remotePlayersCollection.forEach((remotePlayerId, remotePlayer) => {
-      // console.log("remote player", remotePlayerId, remotePlayer);
+    this.remotePlayersBufferCollection.forEach((remotePlayer, remotePlayerId) => {
+  
+      // update remote player sprite
+      this.remotePlayersCollection
+          .get(remotePlayerId)
+          .update(remotePlayer.playerStates, remotePlayer.remotePlayerActions);
     });
   }
 
@@ -148,18 +153,17 @@ export default class LobbyScene extends Phaser.Scene {
     )) {
       if (remotePlayerId !== this.player.playerIdLabel.text) {
         if (!this.remotePlayersCollection.has(remotePlayerId)) {
-          this._createRemotePlayer(remotePlayerId);
+          this._createRemotePlayer(remotePlayerId, {remotePlayerActions, playerStates: playerStates[remotePlayerId]});
           return;
         }
-        this.remotePlayersCollection
-          .get(remotePlayerId)
-          .update(playerStates[remotePlayerId], remotePlayerActions);
+        this.remotePlayersBufferCollection.get(remotePlayerId).remotePlayerActions = remotePlayerActions
+        this.remotePlayersBufferCollection.get(remotePlayerId).playerStates = playerStates[remotePlayerId]
       }
     }
   }
 
-  _createRemotePlayer(remotePlayerId) {
-    console.log("Player joined!");
+  _createRemotePlayer(remotePlayerId, playerUpdates) {
+    console.log("Player joined!", playerUpdates);
     const remotePlayer = new RemotePlayer({
       scene: this,
       key: "player",
@@ -170,5 +174,6 @@ export default class LobbyScene extends Phaser.Scene {
 
     this.physics.add.collider(remotePlayer, this.topLayer);
     this.remotePlayersCollection.set(remotePlayerId, remotePlayer);
+    this.remotePlayersBufferCollection.set(remotePlayerId, playerUpdates)
   }
 }
