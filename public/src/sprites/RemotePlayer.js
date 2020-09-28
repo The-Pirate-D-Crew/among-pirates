@@ -15,9 +15,30 @@ export default class RemotePlayer extends Phaser.Physics.Arcade.Sprite {
     this.setCollideWorldBounds(true);
   }
 
-  update(state, playerAction) {
+  update(playerState, playerAction) {
+    const currentTime = Date.now();
+
     this.playerIdLabel.x = this.body.position.x - 20;
     this.playerIdLabel.y = this.body.position.y - 20;
+
+    const missingPixels =
+      ((currentTime - playerAction.time) * this.speed) / 1000;
+
+    if (Math.round(playerState.y - this.y) > 1) {
+      this.y += missingPixels;
+    }
+
+    if (Math.round(playerState.y - this.y) < -1) {
+      this.y -= missingPixels;
+    }
+
+    if (Math.round(playerState.x - this.x) > 1) {
+      this.x += missingPixels;
+    }
+
+    if (Math.round(playerState.x - this.x) < -1) {
+      this.x -= missingPixels;
+    }
 
     if (playerAction.up) {
       this.setVelocityY(-this.speed);

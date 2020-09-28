@@ -138,7 +138,7 @@ export default class LobbyScene extends Phaser.Scene {
     // Player updates
     this.player.update(this.keys, time, delta);
     this.remotePlayersBufferCollection.forEach((remotePlayer, remotePlayerId) => {
-  
+      
       // update remote player sprite
       this.remotePlayersCollection
           .get(remotePlayerId)

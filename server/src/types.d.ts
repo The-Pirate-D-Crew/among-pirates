@@ -12,7 +12,8 @@ type PlayerAction = {
 	up: boolean,
 	down: boolean,
 	left: boolean,
-	right: boolean
+	right: boolean,
+	time: Number
 }
 
 type PlayerState = {
