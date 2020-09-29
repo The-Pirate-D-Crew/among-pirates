@@ -54,6 +54,8 @@ export default class MenuScene extends Phaser.Scene {
     this.matchCodeInput.on("textchange", (inputText) => {
       this.matchCode = inputText.text;
     });
+
+    this.input.setDefaultCursor("auto");
   }
 
   update() {}
