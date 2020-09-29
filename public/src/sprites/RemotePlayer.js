@@ -15,72 +15,84 @@ export default class RemotePlayer extends Phaser.Physics.Arcade.Sprite {
     this.setCollideWorldBounds(true);
   }
 
+  applyState(playerState){
+    this.scene.physics.moveTo(this, playerState.x, playerState.y, null, 1000/20);
+  }
+
   update(playerState, playerAction) {
     const currentTime = Date.now();
 
-    this.playerIdLabel.x = this.body.position.x - 20;
-    this.playerIdLabel.y = this.body.position.y - 20;
+    // Set player positin
+    // this.setX(playerState.x);
+    // this.setY(playerState.y);
 
-    const missingPixels =
-      ((currentTime - playerAction.time) * this.speed) / 1000;
+    // Set player name position
+    this.playerIdLabel.setX(this.x - 20);
+    this.playerIdLabel.setY(this.y - 20);
 
-    if (Math.round(playerState.y - this.y) > 1) {
-      this.y += missingPixels;
-    }
+    // this.playerIdLabel.x = this.body.position.x - 20;
+    // this.playerIdLabel.y = this.body.position.y - 20;
 
-    if (Math.round(playerState.y - this.y) < -1) {
-      this.y -= missingPixels;
-    }
+    // const missingPixels =
+    //   ((currentTime - playerAction.time) * this.speed) / 1000;
 
-    if (Math.round(playerState.x - this.x) > 1) {
-      this.x += missingPixels;
-    }
+    // if (Math.round(playerState.y - this.y) > 1) {
+    //   this.y += missingPixels;
+    // }
 
-    if (Math.round(playerState.x - this.x) < -1) {
-      this.x -= missingPixels;
-    }
+    // if (Math.round(playerState.y - this.y) < -1) {
+    //   this.y -= missingPixels;
+    // }
 
-    if (playerAction.up) {
-      this.setVelocityY(-this.speed);
-      this.angle = -90;
-    } else if (playerAction.down) {
-      this.setVelocityY(this.speed);
-      this.angle = 90;
-    }
+    // if (Math.round(playerState.x - this.x) > 1) {
+    //   this.x += missingPixels;
+    // }
 
-    if (playerAction.left) {
-      this.setVelocityX(-this.speed);
-      this.angle = 180;
-    } else if (playerAction.right) {
-      this.setVelocityX(this.speed);
-      this.angle = 360;
-    }
+    // if (Math.round(playerState.x - this.x) < -1) {
+    //   this.x -= missingPixels;
+    // }
 
-    if (playerAction.up && playerAction.right) {
-      this.angle = -40;
-    }
+    // if (playerAction.up) {
+    //   this.setVelocityY(-this.speed);  
+    //   this.angle = -90;
+    // } else if (playerAction.down) {
+    //   this.setVelocityY(this.speed);
+    //   this.angle = 90;
+    // }
 
-    if (playerAction.up && playerAction.left) {
-      this.angle = -140;
-    }
+    // if (playerAction.left) {
+    //   this.setVelocityX(-this.speed);
+    //   this.angle = 180;
+    // } else if (playerAction.right) {
+    //   this.setVelocityX(this.speed);
+    //   this.angle = 360;
+    // }
 
-    if (playerAction.down && playerAction.right) {
-      this.angle = 40;
-    }
+    // if (playerAction.up && playerAction.right) {
+    //   this.angle = -40;
+    // }
 
-    if (playerAction.down && playerAction.left) {
-      this.angle = 140;
-    }
+    // if (playerAction.up && playerAction.left) {
+    //   this.angle = -140;
+    // }
 
-    if (
-      !playerAction.down &&
-      !playerAction.up &&
-      !playerAction.left &&
-      !playerAction.right
-    ) {
-      this.setVelocityX(0);
-      this.setVelocityY(0);
-    }
+    // if (playerAction.down && playerAction.right) {
+    //   this.angle = 40;
+    // }
+
+    // if (playerAction.down && playerAction.left) {
+    //   this.angle = 140;
+    // }
+
+    // if (
+    //   !playerAction.down &&
+    //   !playerAction.up &&
+    //   !playerAction.left &&
+    //   !playerAction.right
+    // ) {
+    //   this.setVelocityX(0);
+    //   this.setVelocityY(0);
+    // }
   }
 
   kill() {

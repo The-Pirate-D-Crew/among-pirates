@@ -158,6 +158,9 @@ export default class LobbyScene extends Phaser.Scene {
         }
         this.remotePlayersBufferCollection.get(remotePlayerId).remotePlayerActions = remotePlayerActions
         this.remotePlayersBufferCollection.get(remotePlayerId).playerStates = playerStates[remotePlayerId]
+        this.remotePlayersCollection.get(remotePlayerId).applyState(playerStates[remotePlayerId]);
+      }else{
+        this.player.applyState(playerStates[this.player.playerIdLabel.text]);
       }
     }
   }

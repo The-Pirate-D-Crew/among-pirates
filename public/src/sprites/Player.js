@@ -20,6 +20,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
+  applyState(playerState){
+    this.scene.physics.moveTo(this, playerState.x, playerState.y, null, 1000/20);
+  }
+
   update(keys, _time, _delta) {
 
     const currentTime = Date.now()
@@ -32,52 +36,54 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       time: currentTime, 
     };
 
-    this.playerIdLabel.x = this.body.position.x - 20;
-    this.playerIdLabel.y = this.body.position.y - 20;
-
     // socket player actionUpdate emit
     this.scene.socket.emit("actionUpdate", playerAction);
 
     if (this.active === true) {
-      if (playerAction.up) {
-        this.setVelocityY(-this.speed);
-        this.angle = -90;
-      } else if (playerAction.down) {
-        this.setVelocityY(this.speed);
-        this.angle = 90;
-      }
 
-      if (playerAction.left) {
-        this.setVelocityX(-this.speed);
-        this.angle = 180;
-      } else if (playerAction.right) {
-        this.setVelocityX(this.speed);
-        this.angle = 360;
-      }
+      // Update name position
+      this.playerIdLabel.x = this.x - 20;
+      this.playerIdLabel.y = this.y - 20;
 
-      if (playerAction.up && playerAction.right) {
-        this.angle = -40;
-      }
+      // if (playerAction.up) {
+      //   this.setVelocityY(-this.speed);
+      //   this.angle = -90;
+      // } else if (playerAction.down) {
+      //   this.setVelocityY(this.speed);
+      //   this.angle = 90;
+      // }
 
-      if (playerAction.up && playerAction.left) {
-        this.angle = -140;
-      }
+      // if (playerAction.left) {
+      //   this.setVelocityX(-this.speed);
+      //   this.angle = 180;
+      // } else if (playerAction.right) {
+      //   this.setVelocityX(this.speed);
+      //   this.angle = 360;
+      // }
 
-      if (playerAction.down && playerAction.right) {
-        this.angle = 40;
-      }
+      // if (playerAction.up && playerAction.right) {
+      //   this.angle = -40;
+      // }
 
-      if (playerAction.down && playerAction.left) {
-        this.angle = 140;
-      }
+      // if (playerAction.up && playerAction.left) {
+      //   this.angle = -140;
+      // }
 
-      if (keys.left.isUp && keys.right.isUp) {
-        this.setVelocityX(0);
-      }
+      // if (playerAction.down && playerAction.right) {
+      //   this.angle = 40;
+      // }
 
-      if (keys.down.isUp && keys.up.isUp) {
-        this.setVelocityY(0);
-      }
+      // if (playerAction.down && playerAction.left) {
+      //   this.angle = 140;
+      // }
+
+      // if (keys.left.isUp && keys.right.isUp) {
+      //   this.setVelocityX(0);
+      // }
+
+      // if (keys.down.isUp && keys.up.isUp) {
+      //   this.setVelocityY(0);
+      // }
     }
   }
 }
