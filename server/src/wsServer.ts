@@ -23,7 +23,7 @@ export async function setup()
 	io.listen(4000);
 
 	// Setup PlayerState emit loop
-	playerStateEmitLoop = setInterval(emitPlayerUpdatesToClients, (1000/60));
+	playerStateEmitLoop = setInterval(emitPlayerUpdatesToClients, (1000/20));
 }
 
 async function onSocketConnection(socket:SocketIo.Socket)
