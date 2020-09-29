@@ -1,4 +1,4 @@
 {
-    "baseURL": "http://localhost:3000",
-    "baseWSocketUrl": "http://localhost:4000"
+    "baseURL": "https://508610146c93.ngrok.io",
+    "baseWSocketUrl": "https://fb45ed6ce061.ngrok.io"
 }
