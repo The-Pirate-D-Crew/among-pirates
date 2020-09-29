@@ -26,14 +26,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
   update(keys, _time, _delta) {
 
-    const currentTime = Date.now()
-
     let playerAction = {
       left: keys.left.isDown,
       right: keys.right.isDown,
       down: keys.down.isDown,
       up: keys.up.isDown,
-      time: currentTime, 
     };
 
     // socket player actionUpdate emit

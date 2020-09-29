@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import Player from "../sprites/Player";
 import RemotePlayer from "../sprites/RemotePlayer";
+import TargetCursor from "../sprites/TargetScope"
 import Button from "../sprites/Button";
 import settings from "../../config/settings";
 import io from "socket.io-client";
@@ -48,10 +49,10 @@ export default class LobbyScene extends Phaser.Scene {
   create() {
     // Keys
     this.keys = {
-      left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
-      right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
-      down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
-      up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
+      left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+      right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+      down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+      up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
     };
 
     // Create Map!
@@ -127,6 +128,15 @@ export default class LobbyScene extends Phaser.Scene {
       })
       .setDepth(1);
     this.matchCodeText.setScrollFactor(0, 0);
+
+    // create target scope
+    this.targetScope = new TargetCursor({
+      scene: this,
+      key: "target-scope",
+      x: 700,
+      y: 550,
+    })
+
   }
 
   // Starts the Match
@@ -144,6 +154,9 @@ export default class LobbyScene extends Phaser.Scene {
           .get(remotePlayerId)
           .update(remotePlayer.playerStates, remotePlayer.remotePlayerActions);
     });
+
+    // Target scope updates
+    this.targetScope.update(this.keys, time, delta)
   }
 
   serverUpdate(playerUpdates) {
