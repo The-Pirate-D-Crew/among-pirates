@@ -1,3 +1,4 @@
+import Bullet from "./Bullet"
 export default class Player extends Phaser.Physics.Arcade.Sprite {
   constructor(config) {
     super(config.scene, config.x, config.y, config.key);
@@ -18,19 +19,39 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.scene.socket.on("connect", () => {
       this.playerIdLabel.text = this.scene.socket.id;
     });
+
+    // Player angle to pointer
+    this.scene.input.on("pointermove", (pointer) => {
+      this.rotation = Phaser.Math.Angle.Between(this.x, this.y, pointer.worldX , pointer.worldY)
+    });
+
+    // Bullet group
+    this.bulletGroup = this.scene.add.group();
   }
 
   applyState(playerState){
     this.scene.physics.moveTo(this, playerState.x, playerState.y, null, 1000/20);
   }
 
-  update(keys, _time, _delta) {
+  shoot() {
+    this.bulletGroup.add(
+      new Bullet({
+        scene: this.scene,
+        key: "bullet",
+        x: this.x,
+        y: this.y,
+      })
+    );
+  }
+
+  update(keys, _time, delta) {
 
     let playerAction = {
       left: keys.left.isDown,
       right: keys.right.isDown,
       down: keys.down.isDown,
       up: keys.up.isDown,
+      shoot: keys.space.isDown
     };
 
     // socket player actionUpdate emit
@@ -42,45 +63,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       this.playerIdLabel.x = this.x - 20;
       this.playerIdLabel.y = this.y - 20;
 
-      // if (playerAction.up) {
-      //   this.setVelocityY(-this.speed);
-      //   this.angle = -90;
-      // } else if (playerAction.down) {
-      //   this.setVelocityY(this.speed);
-      //   this.angle = 90;
-      // }
-
-      // if (playerAction.left) {
-      //   this.setVelocityX(-this.speed);
-      //   this.angle = 180;
-      // } else if (playerAction.right) {
-      //   this.setVelocityX(this.speed);
-      //   this.angle = 360;
-      // }
-
-      // if (playerAction.up && playerAction.right) {
-      //   this.angle = -40;
-      // }
-
-      // if (playerAction.up && playerAction.left) {
-      //   this.angle = -140;
-      // }
-
-      // if (playerAction.down && playerAction.right) {
-      //   this.angle = 40;
-      // }
-
-      // if (playerAction.down && playerAction.left) {
-      //   this.angle = 140;
-      // }
-
-      // if (keys.left.isUp && keys.right.isUp) {
-      //   this.setVelocityX(0);
-      // }
-
-      // if (keys.down.isUp && keys.up.isUp) {
-      //   this.setVelocityY(0);
-      // }
+      // Shoot, TODO: improve this!
+      if (playerAction.shoot) this.shoot()
     }
   }
 }

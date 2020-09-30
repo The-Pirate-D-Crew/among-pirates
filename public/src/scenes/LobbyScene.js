@@ -53,6 +53,7 @@ export default class LobbyScene extends Phaser.Scene {
       right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+      space: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
     };
 
     // Create Map!
@@ -129,6 +130,7 @@ export default class LobbyScene extends Phaser.Scene {
       .setDepth(1);
     this.matchCodeText.setScrollFactor(0, 0);
 
+    // TODO: move all this stuff to GameScene when created
     // create target scope
     this.targetScope = new TargetCursor({
       scene: this,
@@ -147,6 +149,10 @@ export default class LobbyScene extends Phaser.Scene {
   update(time, delta) {
     // Player updates
     this.player.update(this.keys, time, delta);
+
+    // Bullet updates
+    this.player.bulletGroup.children.entries.forEach((bullet) => bullet.update(time, delta))
+
     this.remotePlayersBufferCollection.forEach((remotePlayer, remotePlayerId) => {
       
       // update remote player sprite
@@ -179,7 +185,7 @@ export default class LobbyScene extends Phaser.Scene {
   }
 
   _createRemotePlayer(remotePlayerId, playerUpdates) {
-    console.log("Player joined!", playerUpdates);
+    console.log("Player joined!", remotePlayerId);
     const remotePlayer = new RemotePlayer({
       scene: this,
       key: "player",

@@ -9,8 +9,8 @@ class BootScene extends Phaser.Scene {
     });
   }
   preload() {
-
-    // Init Sentry
+    // TODO: make this work just on prod builds
+    // Init Sentry 
     // Sentry.init({
     //   dsn:
     //     "https://3b8f3a07cc2f45a3bdb9de6b2a9a55c4@o450317.ingest.sentry.io/5434687",
@@ -43,14 +43,17 @@ class BootScene extends Phaser.Scene {
     this.load.image("background", "assets/menu-background.png");
     this.load.image("create-match-button", "assets/create-match-button.png");
     this.load.image("join-match-button", "assets/join-match-button.png");
-    this.load.image("player", "assets/soldier1_stand.png");
+    this.load.image("player", "assets/soldier1/soldier1_gun.png");
     this.load.image("tilesheet-complete", "assets/tilesheet_complete.png");
     this.load.image("exit-icon", "assets/exit-icon.png");
     this.load.image("start-match-button", "assets/start-match-button.png");
     this.load.image("zombie", "assets/zoimbie1_stand.png");
-    this.load.image("target-scope", "assets/target-scope.png")
+    this.load.image("target-scope", "assets/target-scope.png");
+    this.load.image("bullet", "assets/bullet.png");
+
     this.load.tilemapTiledJSON("lobby-map", "assets/maps/lobby-map.json");
 
+    this.load.audio("shoot", "assets/sounds/gun-shot.wav")
   }
 }
 
