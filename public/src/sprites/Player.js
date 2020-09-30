@@ -27,24 +27,29 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     // Bullet group
     this.bulletGroup = this.scene.add.group();
+    this.fireRate = 100;
+    this.nextFire = 0;
   }
 
-  applyState(playerState){
+  applyState(playerState) {
     this.scene.physics.moveTo(this, playerState.x, playerState.y, null, 1000/20);
   }
 
-  shoot() {
-    this.bulletGroup.add(
-      new Bullet({
-        scene: this.scene,
-        key: "bullet",
-        x: this.x,
-        y: this.y,
-      })
-    );
+  shoot(time) {
+    if(time > this.nextFire) {
+      this.nextFire = time + this.fireRate;
+      this.bulletGroup.add(
+        new Bullet({
+          scene: this.scene,
+          key: "bullet",
+          x: this.x + (Math.cos(this.rotation) * 20),
+          y: this.y + (Math.sin(this.rotation) * 20),
+        })
+      );
+    }
   }
 
-  update(keys, _time, delta) {
+  update(keys, time, delta) {
 
     let playerAction = {
       left: keys.left.isDown,
@@ -64,7 +69,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       this.playerIdLabel.y = this.y - 20;
 
       // Shoot, TODO: improve this!
-      if (playerAction.shoot) this.shoot()
+      if (playerAction.shoot) this.shoot(time)
     }
   }
 }
