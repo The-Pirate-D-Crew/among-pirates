@@ -5,7 +5,7 @@ on:
     branches: [ deploytest ]
 
 env:
-  GCE_PROJECT: ${{secrets.GCE_PROJECT}}
+  GCP_PROJECT: ${{secrets.GCP_PROJECT}}
   GCE_INSTANCE_NAME: ${{secrets.GCE_INSTANCE_NAME}}
   GCE_INSTANCE_ZONE: ${{secrets.GCE_INSTANCE_ZONE}}
 
@@ -37,7 +37,7 @@ jobs:
       - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
           version: "301.0.0"
-          project_id: ${{ secrets.GCE_PROJECT }}
+          project_id: ${{ secrets.GCP_PROJECT }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
 
@@ -51,14 +51,20 @@ jobs:
           gcloud --quiet auth configure-docker
 
       - name: Build docker images
+        env:
+          GCP_PROJECT: ${{secrets.GCP_PROJECT}}
         run: |
-          yq w -i docker-compose.yml 'services.api.image' us.gcr.io/$GCE_PROJECT/api:latest
+          yq w -i docker-compose.yml 'services.api.image' us.gcr.io/$GCP_PROJECT/api:latest
           export CLOUDSDK_PYTHON=/usr/bin/python
           export LD_LIBRARY_PATH=/usr/local/lib
           docker-compose build
           docker-compose push
 
       - name: Deploy
+        env:
+          GCP_PROJECT: ${{secrets.GCP_PROJECT}}
+          GCE_INSTANCE_NAME: ${{secrets.GCE_INSTANCE_NAME}}
+          GCE_INSTANCE_ZONE: ${{secrets.GCE_INSTANCE_ZONE}}
         run: |
           gcloud compute scp ./docker-compose.yml $GCE_INSTANCE_NAME:~/ --zone=$GCE_INSTANCE_ZONE
           gcloud compute ssh $GCE_INSTANCE_NAME --zone=$GCE_INSTANCE_ZONE --command='docker-compose pull'
