@@ -2,7 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ deploytest ]
+
+env:
+  GCE_PROJECT: ${{secrets.GCE_PROJECT}}
+  GCE_INSTANCE_NAME: ${{secrets.GCE_INSTANCE_NAME}}
+  GCE_INSTANCE_ZONE: ${{secrets.GCE_INSTANCE_ZONE}}
 
 jobs:
   test-server:
@@ -28,38 +33,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      # - uses: mikefarah/yq@3.4.0
       - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
           version: "301.0.0"
-          project_id: ${{ secrets.GCP_PROJECT }}
+          project_id: ${{ secrets.GCE_PROJECT }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
 
-      - name: Auth docker and kubectl with gcloud
-        env:
-          GCP_PROJECT: ${{secrets.GCP_PROJECT}}
-          GKE_CLUSTER: ${{secrets.GKE_CLUSTER}}
+      - name: Install yq
+        run: |
+          sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/3.4.0/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Auth docker with gcloud
         run: |
           gcloud --quiet auth configure-docker
-          gcloud container clusters get-credentials --region us-central1-a --project $GCP_PROJECT $GKE_CLUSTER
-          kubectl config set-context $(kubectl config current-context) --namespace=default
 
       - name: Build docker images
-        env:
-          GCP_PROJECT: ${{secrets.GCP_PROJECT}}
         run: |
-          COMMIT_HASH=$(git rev-parse --short "$GITHUB_SHA")
-          BRANCH=${GITHUB_REF##*/}
-          IMAGE=us.gcr.io/$GCP_PROJECT/api:$BRANCH-$COMMIT_HASH
-          sed -i -e 's|_IMAGE_|'"$IMAGE"'|g;' infra/Deployment.yml
-          docker build -t $IMAGE .
-          docker push $IMAGE
-          
+          yq w -i docker-compose.yml 'services.api.image' us.gcr.io/$GCE_PROJECT/api:latest
+          export CLOUDSDK_PYTHON=/usr/bin/python
+          export LD_LIBRARY_PATH=/usr/local/lib
+          docker-compose build
+          docker-compose push
+
       - name: Deploy
         run: |
-          kubectl apply -f infra/
-          kubectl rollout status -f infra/Deployment.yml
-          kubectl rollout status -f infra/StatefulSet-store-redis.yml
+          gcloud compute scp ./docker-compose.yml $GCE_INSTANCE_NAME:~/ --zone=$GCE_INSTANCE_ZONE
+          gcloud compute ssh $GCE_INSTANCE_NAME --zone=$GCE_INSTANCE_ZONE --command='docker/compose pull'
+          gcloud compute ssh $GCE_INSTANCE_NAME --zone=$GCE_INSTANCE_ZONE --command='docker/compose up --force-recreate --no-build -d'
+          gcloud compute ssh $GCE_INSTANCE_NAME --zone=$GCE_INSTANCE_ZONE --command="docker image prune -f"
 
   build-client:
     runs-on: ubuntu-latest
