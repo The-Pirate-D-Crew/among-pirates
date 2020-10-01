@@ -25,11 +25,11 @@ spec:
         env:
           - name: GOOGLE_APPLICATION_CREDENTIALS
             value: /var/secrets/google-service-account-key.json
-          - name: STORE_REDIS_URL
+          - name: MATCH_STORE_REDIS_URL
             valueFrom:
               configMapKeyRef:
                 name: api
-                key: STORE_REDIS_URL
+                key: MATCH_STORE_REDIS_URL
         volumeMounts:
           - name: google-service-account-key
             mountPath: /var/secrets/
