@@ -1,0 +1,57 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: api
+spec:
+  selector: # Select pods that will work under this Deployment
+    matchLabels:
+      service: api
+  template:
+    metadata:
+      labels: # Pods labels
+        service: api
+    spec:
+      containers:
+      - name: api
+        image: _IMAGE_
+        resources:
+          requests:
+            memory: 200M
+            cpu: 200m
+          limits:
+            memory: 200M
+            cpu: 200m
+        env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /var/secrets/google-service-account-key.json
+          - name: STORE_REDIS_URL
+            valueFrom:
+              configMapKeyRef:
+                name: api
+                key: STORE_REDIS_URL
+        volumeMounts:
+          - name: google-service-account-key
+            mountPath: /var/secrets/
+            readOnly: true
+        ports:
+          - name: http
+            containerPort: 3000
+          - name: socket
+            containerPort: 4000
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 3000
+        livenessProbe:
+          initialDelaySeconds: 10
+          httpGet:
+            path: /healthz
+            port: 3000
+      volumes:
+        - name: google-service-account-key
+          secret:
+            secretName: api
+            items:
+              - key: GOOGLE_SERVICE_ACCOUNT_KEY
+                path: google-service-account-key.json
