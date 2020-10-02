@@ -10,25 +10,6 @@ env:
   GCE_INSTANCE_ZONE: ${{secrets.GCE_INSTANCE_ZONE}}
 
 jobs:
-  test-server:
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '14.x'
-
-      - name: Prepare dependencies
-        run: |
-          npm install --prefix server
-          docker-compose up -d matchstore
-
-      - name: Test
-        run: npm run test --prefix server
-
-      - name: Cleanup
-        run: docker-compose down
-
   build-and-deploy-server:
     runs-on: ubuntu-18.04
     steps:
