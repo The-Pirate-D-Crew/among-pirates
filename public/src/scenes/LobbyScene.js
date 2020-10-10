@@ -27,7 +27,7 @@ export default class LobbyScene extends Phaser.Scene {
     this.matchCode = data.matchCode;
 
     this.socket = io(baseWSocketUrl, {
-      path: `ws/match/${data.matchId}`,
+      path: `/ws/match/${data.matchId}`,
       autoConnect: false,
       transports: ["websocket"],
     });
