@@ -7,3 +7,8 @@
   from = "/api/*"
   to = "http://35.238.71.180:3000/:splat"
   status = 200
+
+[[redirects]]
+  from = "/ws/*"
+  to = "http://35.238.71.180:4000/:splat"
+  status = 200
