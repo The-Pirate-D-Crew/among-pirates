@@ -1,4 +1,4 @@
 {
-    "baseURL": "http://35.238.71.180:3000",
+    "baseURL": "https://among-pirates.netlify.app/api",
     "baseWSocketUrl": "http://35.238.71.180:4000"
 }
