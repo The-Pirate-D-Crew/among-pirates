@@ -1,4 +1,4 @@
 [build]
   base = "public"
   command = "cp config/settings.example.json config/settings.json && npm install && npm run build && cp -R assets dist"
-  publish = "public/dist"
+  publish = "dist"
