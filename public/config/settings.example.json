@@ -1,4 +1,4 @@
 {
     "baseURL": "https://among-pirates.netlify.app/api",
-    "baseWSocketUrl": "https://among-pirates.netlify.app/ws"
+    "baseWSocketUrl": "https://among-pirates.netlify.app"
 }
