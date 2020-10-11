@@ -10,8 +10,8 @@ export async function start()
 		redisUrl: process.env.MATCH_STORE_REDIS_URL,
 		redisNamespace: "match"
 	});
-	await httpServer.setup();
-	await wsServer.setup();
+	const webServer = await httpServer.setup();
+	await wsServer.setup(webServer);
 }
 
 export async function shutdown()

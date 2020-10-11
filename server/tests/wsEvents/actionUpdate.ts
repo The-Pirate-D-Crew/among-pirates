@@ -33,18 +33,20 @@ describe("WS /match/:id actionUpdate", function(){
 
 
 	it("should update player state", async function(){
-		this.timeout(999999);
 		// Create a match
-		const matchCode = await agent
+		const matchId = await agent
 			.post("/match")
 			.expect(200)
-			.then(response => response.body.code);
+			.then(response => response.body.id);
 
 		// Connect through socket.io as Player 1
-		const playerSocket1 = io("http://localhost:4000", {
-			path: `/match/${matchCode}`,
+		const playerSocket1 = io("http://localhost:3000", {
+			path: "/socket.io",
 			autoConnect: false,
-			transports: ["websocket"]
+			transports: ["websocket"],
+			query: {
+				matchId: matchId
+			}
 		});
 		sockets.push(playerSocket1);	
 		const playerSocket1Connection = new Promise(r => { playerSocket1.once("connect", r); });
@@ -52,10 +54,13 @@ describe("WS /match/:id actionUpdate", function(){
 		await playerSocket1Connection;
 
 		// Connect through socket.io as Player 2
-		const playerSocket2 = io("http://localhost:4000", {
-			path: `/match/${matchCode}`,
+		const playerSocket2 = io("http://localhost:3000", {
+			path: "/socket.io",
 			autoConnect: false,
-			transports: ["websocket"]
+			transports: ["websocket"],
+			query: {
+				matchId: matchId
+			}
 		});
 		sockets.push(playerSocket2);	
 		const playerSocket2Connection = new Promise(r => { playerSocket2.once("connect", r); });

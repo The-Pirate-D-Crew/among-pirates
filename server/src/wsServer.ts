@@ -1,16 +1,18 @@
 import SocketIoServer, * as SocketIo from "socket.io"
+import * as http from "http"
 import * as matchController from "./components/match/controller"
 
 var io:SocketIo.Server;
 var playerStateEmitLoop:NodeJS.Timeout;
 
-export async function setup()
+export async function setup(httpServer:http.Server)
 {
 	// Setup server
-	io = SocketIoServer({
-		path: "/match",
+	io = SocketIoServer(httpServer, {
+		path: "/socket.io",
 		serveClient: false,
-		origins: "*:*"
+		origins: "*:*",
+		transports: ["websocket"]
 	});
 
 	// Setup middleware
@@ -19,9 +21,6 @@ export async function setup()
 		next();
 	});
 
-	// Start listenint for connections
-	io.listen(4000);
-
 	// Setup PlayerState emit loop
 	playerStateEmitLoop = setInterval(emitPlayerUpdatesToClients, (1000/20));
 }
@@ -29,7 +28,7 @@ export async function setup()
 async function onSocketConnection(socket:SocketIo.Socket)
 {
 	// Retrieve match
-	const matchId = socket.handshake.url.split("/")[2];
+	const matchId = socket.handshake.query.matchId;
 	const match = await matchController.getById(matchId);
 
 	// Disconnect socket if match doesnt exist

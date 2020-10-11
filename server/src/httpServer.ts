@@ -7,7 +7,7 @@ import {router as matchRouter} from "./components/match/router";
 const app = express();
 var server:http.Server;
 
-export async function setup()
+export async function setup():Promise<http.Server>
 {
 	app.use(cors());
 	app.use(bodyParser.json());
@@ -27,6 +27,7 @@ export async function setup()
 	});
 	server = http.createServer(app);
 	await new Promise(r => server.listen(3000, r));
+	return server;
 }
 
 export async function shutdown()

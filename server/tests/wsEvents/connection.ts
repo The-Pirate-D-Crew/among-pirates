@@ -40,10 +40,13 @@ describe("WS /match/:id", function(){
 			.then(response => response.body.id);
 
 		// Connect through socket.io as player1
-		const player1Socket = io("http://localhost:4000", {
-			path: `/match/${matchId}`,
+		const player1Socket = io("http://localhost:3000", {
+			path: "/socket.io",
 			autoConnect: false,
-			transports: ["websocket"]
+			transports: ["websocket"],
+			query: {
+				matchId: matchId
+			}
 		});
 		sockets.push(player1Socket);
 		const player1SocketConnection = new Promise(r => { player1Socket.once("connect", r); });
@@ -59,10 +62,13 @@ describe("WS /match/:id", function(){
 			.then(response => response.body.id);
 
 		// Connect through socket.io as player1
-		const player1Socket = io("http://localhost:4000", {
-			path: `/match/${matchId}`,
+		const player1Socket = io("http://localhost:3000", {
+			path: "/socket.io",
 			autoConnect: false,
-			transports: ["websocket"]
+			transports: ["websocket"],
+			query: {
+				matchId: matchId
+			}
 		});
 		sockets.push(player1Socket);
 		const player1SocketConnection = new Promise(r => { player1Socket.once("connect", r); });
@@ -71,10 +77,13 @@ describe("WS /match/:id", function(){
 		const player1Id = player1Socket.id;
 
 		// Connect through socket.io as player2
-		const player2Socket = io("http://localhost:4000", {
-			path: `/match/${matchId}`,
+		const player2Socket = io("http://localhost:3000", {
+			path: "/socket.io",
 			autoConnect: false,
-			transports: ["websocket"]
+			transports: ["websocket"],
+			query: {
+				matchId: matchId
+			}
 		});
 		sockets.push(player2Socket);
 		const player2SocketConnection = new Promise(r => { player2Socket.once("connect", r); });
