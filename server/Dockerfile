@@ -9,8 +9,8 @@ RUN npm run build
 
 FROM node:16.10.0
 WORKDIR /app
-COPY --from=server-build-stage /var/www/package.json .
-COPY --from=server-build-stage /var/www/package-lock.json .
+COPY --from=server-build-stage /app/package.json .
+COPY --from=server-build-stage /app/package-lock.json .
 RUN npm ci --production
-COPY --from=server-build-stage /var/www/dist ./dist
+COPY --from=server-build-stage /app/dist ./dist
 CMD npm start
