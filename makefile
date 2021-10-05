@@ -2,11 +2,10 @@ PROJECT = "Among Pirates"
 
 install: ;@echo "Installing ${PROJECT}....."; \
 	cp public/config/settings.example.json public/config/settings.json; \
-	npm install --prefix server && npm install --prefix public
+	npm ci --prefix server && npm install --prefix public
 
 server-dev: ;@echo "Starting ${PROJECT} Server....."; \
-	docker-compose up -d matchstore; \
-	npm run dev --prefix server
+	(cd server && ./dev.sh)
 
 client-dev: ;@echo "Starting ${PROJECT} Client....."; \
 	npm start --prefix public
