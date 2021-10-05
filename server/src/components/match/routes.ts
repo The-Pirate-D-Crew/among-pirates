@@ -1,5 +1,7 @@
 import * as Express from "express";
-import * as matchController from "./controller";
+import mongoose from "mongoose";
+import randomstring from "randomstring";
+import {Match, Invitation} from "./models";
 
 export default {
 	create,
@@ -10,17 +12,50 @@ export default {
 
 async function create(req:Express.Request, res:Express.Response)
 {
-	const match = await matchController.create();
+	// Generate a match ID
+	const matchId = new mongoose.Types.ObjectId();
+
+	// Brute-force an invitation code
+	const maxGenerationRetries = 100;
+	var invitation:Invitation;
+	for(let i=0; i<maxGenerationRetries; i++){
+		let code = randomstring.generate({
+			length: 5,
+			capitalization: "uppercase"
+		});
+		try{
+			invitation = await Invitation.create({
+				match: matchId,
+				code: code
+			});
+			break;
+		}catch(error){
+			if(error.code != 11000 || !error.keyPattern?.code){
+				throw error;
+			}
+		}		
+	}
+	if(!invitation){
+		throw new Error("Could not create an invitation code");
+	}
+
+	// Create a match
+	const match = await Match.create({
+		_id: matchId,
+		invitationCode: invitation.code
+	});
+
+	// Send response
 	res.status(200).json({
 		id: match.id,
-		code: match.code
+		code: match.invitationCode
 	});
 }
 
 async function join(req:Express.Request, res:Express.Response)
 {
 	// Get match
-	const match = await matchController.getByCode(req.params.code);
+	const match = await Match.findOne({invitationCode: req.params.code}).exec();
 	if(!match){
 		res.status(404).json({message: "MATCH_NOT_FOUND"});
 		return;
@@ -28,7 +63,7 @@ async function join(req:Express.Request, res:Express.Response)
 
 	// Send response
 	res.status(200).json({
-		id: match.id
+		id: match._id
 	});
 }
 

@@ -1,6 +1,5 @@
 import * as http from "http";
 import express from "express";
-import * as bodyParser from "body-parser";
 import cors from "cors";
 import {router as matchRouter} from "./components/match/router";
 
@@ -10,7 +9,6 @@ var server:http.Server;
 export async function setup():Promise<http.Server>
 {
 	app.use(cors());
-	app.use(bodyParser.json());
 	app.use("/match", matchRouter);
 	app.use("/assets", express.static("../public/assets"))
 	app.use(express.static("../public/dist"))

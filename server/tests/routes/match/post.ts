@@ -1,6 +1,5 @@
 import {expect} from "chai";
 import * as request from "supertest";
-import {Socket} from "socket.io-client";
 import * as services from "../../services";
 
 describe("POST /match", function(){
@@ -19,11 +18,8 @@ describe("POST /match", function(){
 	});
 
 	after(async function(){
-		if(!process.env.DEVTEST){
-			await services.shutdown();
-		}
+		await services.shutdown();
 	});
-
 
 	it("should create a match", async function(){
 

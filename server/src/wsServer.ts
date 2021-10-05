@@ -1,6 +1,7 @@
 import SocketIoServer, * as SocketIo from "socket.io"
 import * as http from "http"
-import * as matchController from "./components/match/controller"
+import {Match} from "./components/match/models"
+import * as matchController from "./components/match/controller";
 
 var io:SocketIo.Server;
 var playerStateEmitLoop:NodeJS.Timeout;
@@ -29,7 +30,7 @@ async function onSocketConnection(socket:SocketIo.Socket)
 {
 	// Retrieve match
 	const matchId = socket.handshake.query.matchId;
-	const match = await matchController.getById(matchId);
+	const match = await Match.findOne({_id: matchId}).exec();
 
 	// Disconnect socket if match doesnt exist
 	if(!match){
@@ -45,7 +46,7 @@ async function onSocketConnection(socket:SocketIo.Socket)
 	await new Promise((resolve, reject) => {
 		socket.join(matchId, error => {
 			if(error){ reject(error); return; }
-			resolve();
+			resolve(undefined);
 		});
 	});
 
@@ -102,6 +103,6 @@ function emitPlayerUpdatesToClients()
 export async function shutdown()
 {
 	clearTimeout(playerStateEmitLoop);
-	await new Promise(r => io.close(r));
+	await new Promise(r => io.close(() => r(undefined)));
 	io.removeAllListeners();
 }

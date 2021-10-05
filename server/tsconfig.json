@@ -4,7 +4,7 @@
         "esModuleInterop": true,
         "target": "es6",
         "lib": ["esnext"],
-        "noImplicitAny": true,
+        "noImplicitAny": false,
         "moduleResolution": "node",
         "sourceMap": true,
         "outDir": "dist",
@@ -18,5 +18,9 @@
     "include": [
         "src/**/*",
         "tests/**/*"
-    ]
+    ],
+    "ts-node": {
+        "transpileOnly": true,
+        "files": true
+    }
 }

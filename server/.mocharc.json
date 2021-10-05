@@ -1,0 +1,6 @@
+{
+	"recursive": true,
+	"watch-files": ["src/**/*.ts", "tests/**/*.ts"],
+	"require": ["ts-node/register"],
+	"spec": "tests/**/*.ts"
+}

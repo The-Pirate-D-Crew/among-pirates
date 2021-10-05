@@ -1,8 +1,8 @@
-import * as redis from  "redis";
+import {MongoClient} from "mongodb";
 import * as service from "../src/index";
 
 var alreadySetup = false;
-var matchStoreClient:redis.RedisClient;
+var mongoClient:MongoClient;
 
 export {
 	setup,
@@ -18,23 +18,23 @@ async function setup()
 	}
 	alreadySetup = true;
 
-	// Setup MatchStore client
-	matchStoreClient = redis.createClient({
-		url: process.env.MATCH_STORE_REDIS_URL
-	});
+	// Setup mongodb client
+	mongoClient = new MongoClient(process.env.MONGO_DB_URL);
+	await mongoClient.connect();
 
-	// Setup API
+	// Setup service
 	await service.start();
 }
 
 async function reset()
 {
-	await new Promise(r => matchStoreClient.flushall(r));
+	const collections = await mongoClient.db().collections();
+	await Promise.all(collections.map(c => c.deleteMany({})));
 }
 
 async function shutdown()
 {
 	await service.shutdown();
-	await new Promise(r => matchStoreClient.quit(r));
+	await mongoClient.close();
 	alreadySetup = false;
 }

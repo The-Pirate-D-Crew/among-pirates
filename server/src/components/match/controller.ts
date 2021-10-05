@@ -1,13 +1,3 @@
-import randomstring from "randomstring";
-import uniqid from "uniqid";
-import * as redis from  "redis";
-import {promisify} from "util";
-var config:MatchControllerConfig;
-var redisGeneralClient:redis.RedisClient;
-var redisSet:redis.OverloadedCommand<string, string, string>;
-var redisGet:redis.OverloadedCommand<string, string, string>;
-var redisSadd:redis.OverloadedCommand<string, string, string>;
-var redisSrem:redis.OverloadedCommand<string, string, string>;
 const localPlayerIds = new Map<MatchId, Set<PlayerId>>();
 const localPlayerActions = new Map<PlayerId,PlayerAction>();
 const localPlayerStates = new Map<PlayerId,PlayerState>();
@@ -15,13 +5,10 @@ var playerStateUpdateLoop:NodeJS.Timeout;
 
 export {
 	setup,
-	create,
 	addPlayer,
 	removePlayer,
 	setPlayerState,
 	updatePlayerAction,
-	getByCode,
-	getById,
 	getLocal,
 	getPlayerState,
 	getPlayerAction,
@@ -29,83 +16,14 @@ export {
 	shutdown
 };
 
-async function setup(_config:MatchControllerConfig)
+async function setup()
 {
-	// Make config available module wide
-	config = _config;
-
-	// Setup redis clients
-	redisGeneralClient = redis.createClient({
-		url: config.redisUrl
-	});
-	redisGeneralClient.on("error", error => console.error(error));
-	redisSet = promisify(redisGeneralClient.set).bind(redisGeneralClient);
-	redisGet = promisify(redisGeneralClient.get).bind(redisGeneralClient);
-	redisSadd = promisify(redisGeneralClient.sadd).bind(redisGeneralClient);
-	redisSrem = promisify(redisGeneralClient.srem).bind(redisGeneralClient);
-
 	// Setup PlayerState update loop
 	playerStateUpdateLoop = setInterval(updatePlayerStates, (1000/60));
 }
 
-async function create():Promise<Match>
-{
-	// Generate an id
-	const matchId = uniqid();
-
-	// Get a code for the match
-	var matchCode;
-	const maxGenerationRetries = 1000;
-	for(let i=0; i<maxGenerationRetries; i++){
-		// Generate code
-		let code = randomstring.generate({
-			length: 5,
-			capitalization: "uppercase"
-		});
-
-		// Make sure generated code isnt being used
-		const valid = await redisSet(`${config.redisNamespace}:${code}`, "", "NX");
-		if(!valid){ continue; }
-		matchCode = code;
-		break;
-	}
-	if(!matchCode){
-		throw new Error("Could not generate a valid matchId");
-	}
-
-	// Create match
-	const match:Match = {
-		id: matchId,
-		code: matchCode
-	}
-	await redisSet(`${config.redisNamespace}:${matchCode}`, JSON.stringify(match));
-	await redisSet(`${config.redisNamespace}:${matchId}`, JSON.stringify(match));
-	return match;
-}
-
-async function getByCode(matchCode:string):Promise<Match>
-{
-	const matchStr = await redisGet(`${config.redisNamespace}:${matchCode}`);
-	if(!matchStr){
-		return null;
-	}
-	return JSON.parse(matchStr);
-}
-
-async function getById(matchId:MatchId):Promise<Match>
-{
-	const matchStr = await redisGet(`${config.redisNamespace}:${matchId}`);
-	if(!matchStr){
-		return null;
-	}
-	return JSON.parse(matchStr);
-}
-
 async function addPlayer(matchId:string, playerId:string)
 {
-	// Add player to store
-	await redisSadd(`${config.redisNamespace}:matchmembers:${matchId}`, playerId);
-
 	// Add player to local set
 	var playerIds = localPlayerIds.get(matchId);
 
@@ -127,9 +45,6 @@ function setPlayerState(playerId:PlayerId, playerState:PlayerState)
 
 async function removePlayer(matchId:string, playerId:string)
 {
-	// Remove player from store
-	await redisSrem(`${config.redisNamespace}:matchmembers:${matchId}`, playerId);
-
 	// Remove player from local set
 	const playerIds = localPlayerIds.get(matchId);
 	if(playerIds){
@@ -196,6 +111,4 @@ function updatePlayerStates()
 async function shutdown()
 {
 	clearInterval(playerStateUpdateLoop);
-	await new Promise(r => redisGeneralClient.quit(r));
-	redisGeneralClient.removeAllListeners();
 }
