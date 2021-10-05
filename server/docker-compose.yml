@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  api:
+    build:
+      context: .
+      target: server-build-stage
+    command: npm run dev
+    image: api
+    ports:
+      - "3000:3000"
+    networks:
+      - network1
+    environment:
+      - MONGO_DB_URL=mongodb://mongodb:27017/among-pirates
+    volumes:
+      - ./src/:/app/src/
+      - ./tests/:/app/tests/
+      - ./package-lock.json:/app/package-lock.json
+      - ./package.json:/app/package.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./.mocharc.json:/app/.mocharc.json
+  mongodb:
+    image: mongo:5.0.3
+    networks:
+      - network1
+networks:
+  network1:
