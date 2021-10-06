@@ -10,55 +10,90 @@ env:
   GCE_INSTANCE_ZONE: ${{secrets.GCE_INSTANCE_ZONE}}
 
 jobs:
-  test-server:
+  build-and-test-server:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '14.10.1'
-      - name: Test
-        run: |
-          npm install --prefix server
-          npm test --prefix server
-
-  build-and-deploy-server:
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2
-      # - uses: mikefarah/yq@3.4.0
-      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-        with:
-          version: "301.0.0"
-          project_id: ${{ secrets.GCP_PROJECT }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
 
       - name: Install yq
         run: |
           sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/3.4.0/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
 
-      - name: Auth docker with gcloud
-        run: |
-          gcloud --quiet auth configure-docker
-
-      - name: Build docker images
+      - name: Build test docker image
         env:
           GCP_PROJECT: ${{secrets.GCP_PROJECT}}
+        working-directory: server
         run: |
-          yq w -i docker-compose.yml 'services.api.image' us.gcr.io/$GCP_PROJECT/api:latest
           export CLOUDSDK_PYTHON=/usr/bin/python
           export LD_LIBRARY_PATH=/usr/local/lib
-          docker-compose build
-          docker-compose push
+          docker build -t us.gcr.io/$GCP_PROJECT/api:latest --target server-build-stage .
+
+      - name: Start services
+        working-directory: server
+        run: docker-compose up -d mongodb
+
+      - name: Test
+        working-directory: server
+        run: |
+          yq w -i docker-compose.yml 'services.api.image' us.gcr.io/$GCP_PROJECT/api:latest
+          docker-compose run --rm api bash -c "npm test"
+
+      - name: Test cleanup
+        if: always()
+        working-directory: server
+        run: docker-compose down
+
+      - name: Build prod docker image
+        env:
+          GCP_PROJECT: ${{secrets.GCP_PROJECT}}
+        working-directory: server
+        run: |
+          export CLOUDSDK_PYTHON=/usr/bin/python
+          export LD_LIBRARY_PATH=/usr/local/lib
+          docker build -t us.gcr.io/$GCP_PROJECT/api:latest .
+
+      - name: Setup gcloud cli
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          version: "301.0.0"
+          project_id: ${{ secrets.GCP_PROJECT }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Auth docker with gcloud
+        run: gcloud --quiet auth configure-docker
+
+      - name: Push docker images
+        run: docker push us.gcr.io/$GCP_PROJECT/api:latest
+
+  deploy-server:
+    runs-on: ubuntu-18.04
+    needs: build-and-test-server
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install yq
+        run: |
+          sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/3.4.0/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Setup gcloud cli
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          version: "301.0.0"
+          project_id: ${{ secrets.GCP_PROJECT }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
 
       - name: Deploy
         env:
           GCP_PROJECT: ${{secrets.GCP_PROJECT}}
           GCE_INSTANCE_NAME: ${{secrets.GCE_INSTANCE_NAME}}
           GCE_INSTANCE_ZONE: ${{secrets.GCE_INSTANCE_ZONE}}
+        working-directory: server
         run: |
+          yq w -i docker-compose.yml 'services.api.image' us.gcr.io/$GCP_PROJECT/api:latest
           gcloud compute scp ./docker-compose.yml $GCE_INSTANCE_NAME:~/ --zone=$GCE_INSTANCE_ZONE
           gcloud compute ssh $GCE_INSTANCE_NAME --zone=$GCE_INSTANCE_ZONE --command='gcloud --quiet auth configure-docker'
           gcloud compute ssh $GCE_INSTANCE_NAME --zone=$GCE_INSTANCE_ZONE --command='docker-compose pull'
@@ -84,5 +119,3 @@ jobs:
           
       - name: Build
         run: npm run build --prefix public
-
-   
