@@ -94,6 +94,8 @@ jobs:
         working-directory: server
         run: |
           yq w -i docker-compose.yml 'services.api.image' us.gcr.io/$GCP_PROJECT/api:latest
+          yq w -i ./docker-compose.yml 'services.api.command' 'npm start'
+          yq d -i ./docker-compose.yml 'services.api.volumes'
           gcloud compute scp ./docker-compose.yml $GCE_INSTANCE_NAME:~/ --zone=$GCE_INSTANCE_ZONE
           gcloud compute ssh $GCE_INSTANCE_NAME --zone=$GCE_INSTANCE_ZONE --command='gcloud --quiet auth configure-docker'
           gcloud compute ssh $GCE_INSTANCE_NAME --zone=$GCE_INSTANCE_ZONE --command='docker-compose pull'
